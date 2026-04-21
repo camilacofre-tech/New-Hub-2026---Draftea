@@ -2981,17 +2981,19 @@ async function handleGoogleLogin(googleResponse) {
     sbSession = authData;
     var token = authData.access_token;
 
-    // 2. Get profile via Edge Function using user_id from auth response
-    var payload = JSON.parse(atob(googleResponse.credential.split('.')[1]));
-    var userId = authData.user ? authData.user.id : null;
-    currentUser = { email: payload.email, name: payload.name || payload.email, role: 'employee', empId: null };
-    var profileData = await callEdge('get_profile', { user_id: userId, email: payload.email }, token);
+    // 2. Get profile via Edge Function using user_id from Supabase access_token
+    var googlePayload = JSON.parse(atob(googleResponse.credential.split('.')[1]));
+    // Extract UUID from Supabase JWT (access_token), not from authData.user which may be null
+    var sbPayload = JSON.parse(atob(token.split('.')[1]));
+    var userId = authData.user ? authData.user.id : (sbPayload.sub || null);
+    console.log('UserID:', userId);
+    currentUser = { email: googlePayload.email, name: googlePayload.name || googlePayload.email, role: 'employee', empId: null };
+    var profileData = await callEdge('get_profile', { user_id: userId, email: googlePayload.email }, token);
     console.log('Profile:', profileData);
     var profile = profileData.profile;
 
     if (!profile) {
-      var payload = JSON.parse(atob(googleResponse.credential.split('.')[1]));
-      errEl.textContent = 'Sin perfil para ' + payload.email + '. Contactá a People.';
+      errEl.textContent = 'Sin perfil para ' + googlePayload.email + '. Contactá a People.';
       errEl.classList.remove('hidden');
       return;
     }

@@ -2950,73 +2950,50 @@ async function handleGoogleLogin(googleResponse) {
 
   try {
     // 1. Exchange Google ID token for Supabase session
-    var res = await fetch('https://tyfahsafccqirvdmdmmm.supabase.co/auth/v1/token?grant_type=id_token', {
+    var authRes = await fetch('https://tyfahsafccqirvdmdmmm.supabase.co/auth/v1/token?grant_type=id_token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY },
       body: JSON.stringify({ provider: 'google', id_token: googleResponse.credential })
     });
-    var data = await res.json();
-    console.log('Supabase Google auth:', data.access_token ? 'OK' : data.error);
+    var authData = await authRes.json();
+    console.log('Auth:', authData.access_token ? 'OK' : authData.error);
 
-    if (!data.access_token) {
-      errEl.textContent = 'Error Google Auth: ' + (data.error_description || data.error || 'desconocido');
+    if (!authData.access_token) {
+      errEl.textContent = 'Error Google: ' + (authData.error_description || authData.error || 'desconocido');
       errEl.classList.remove('hidden');
       return;
     }
 
-    sbSession = data;
-    var token = data.access_token;
+    sbSession = authData;
+    var token = authData.access_token;
 
-    // 2. Get user profile (role + employee_id)
-    var profileRes = await fetch('https://tyfahsafccqirvdmdmmm.supabase.co/rest/v1/user_profiles?select=*', {
-      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
-    });
-    var profiles = await profileRes.json();
-    var profile = profiles && profiles.length ? profiles[0] : null;
-    console.log('Profile:', profile);
+    // 2. Get profile via Edge Function
+    var profileData = await callEdge('get_profile', {}, token);
+    console.log('Profile:', profileData);
+    var profile = profileData.profile;
 
     if (!profile) {
-      // Try matching by email in employees table
       var payload = JSON.parse(atob(googleResponse.credential.split('.')[1]));
       errEl.textContent = 'Sin perfil para ' + payload.email + '. Contactá a People.';
       errEl.classList.remove('hidden');
       return;
     }
 
-    // 3. Load employee data
-    var empRes = await fetch('https://tyfahsafccqirvdmdmmm.supabase.co/rest/v1/employees?id=eq.' + profile.employee_id + '&select=*', {
-      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
-    });
-    var empRows = await empRes.json();
-    currentEmp = empRows && empRows.length ? empRows[0] : null;
+    // 3. Load employees via Edge Function
+    var empData = await callEdge('get_employees', {}, token);
+    console.log('Employees:', empData.employees ? empData.employees.length : 0);
+    var allEmps = empData.employees || [];
 
-    currentUser = {
-      name: currentEmp ? currentEmp.name : data.user.email,
-      role: profile.role,
-      empId: profile.employee_id,
-      email: data.user ? data.user.email : ''
-    };
-
-    // 4. Load all visible employees
-    var allRes = await fetch('https://tyfahsafccqirvdmdmmm.supabase.co/rest/v1/employees?select=*', {
-      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
-    });
-    var allEmps = await allRes.json();
-    console.log('Employees loaded:', allEmps ? allEmps.length : 0);
-
-    if (allEmps && allEmps.length) {
+    if (allEmps.length) {
       EMPLOYEES = allEmps.map(function(e) {
         return Object.assign({}, e, {
-          role: e.role || '',
-          area: e.area || '',
           salary: parseFloat(e.salary) || 0,
           salary_currency: e.salary_currency || 'USD',
-          start: e.start_date ? e.start_date.replace(/-/g,'/') : '',
+          start: e.start_date || '',
           birthday: e.birthday || '',
           vacDays: e.vac_days_total || 15,
           vacUsed: e.vac_days_used || 0,
           company: e.company || 'Draftea',
-          manager: e.manager_id || '',
           salaryHistory: [],
           equipment: [],
           perf: null
@@ -3024,12 +3001,19 @@ async function handleGoogleLogin(googleResponse) {
       });
     }
 
-    // 5. Load vacations
-    var vacRes = await fetch('https://tyfahsafccqirvdmdmmm.supabase.co/rest/v1/vacations?select=*&order=created_at.desc', {
-      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
-    });
-    var vacs = await vacRes.json();
-    if (vacs && vacs.length) {
+    // Set current employee
+    currentEmp = EMPLOYEES.find(function(e){ return e.id === profile.employee_id; }) || null;
+    currentUser = {
+      name: currentEmp ? currentEmp.name : (authData.user ? authData.user.email : ''),
+      role: profile.role,
+      empId: profile.employee_id,
+      email: authData.user ? authData.user.email : ''
+    };
+
+    // 4. Load vacations via Edge Function
+    var vacData = await callEdge('get_vacations', {}, token);
+    var vacs = vacData.vacations || [];
+    if (vacs.length) {
       VACATIONS = vacs.map(function(v) {
         var emp = EMPLOYEES.find(function(e){ return e.id === v.employee_id; });
         return {
@@ -3044,7 +3028,7 @@ async function handleGoogleLogin(googleResponse) {
       });
     }
 
-    // 6. Show app
+    // 5. Show app
     document.getElementById('loginScreen').style.display = 'none';
     var app = document.getElementById('appWrap');
     app.classList.remove('hidden');

@@ -6,6 +6,7 @@
 <title>Draftea Hub</title>
 <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700;800;900&family=Red+Hat+Text:wght@300;400;500;600&family=Red+Hat+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 
 :root{
@@ -1003,68 +1004,58 @@ var SLACK_WEBHOOK = 'https://hooks.slack.com/services/TU/WEBHOOK/URL';
 var SB_URL = 'https://tyfahsafccqirvdmdmmm.supabase.co';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5ZmFoc2FmY2NxaXJ2ZG1kbW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NzI5NzEsImV4cCI6MjA5MjM0ODk3MX0.Vzl9Bk8fwIRi15xbWnYSO8xpj_fEaAGXDEEjZXWnmlQ';
 
-// ── Supabase helpers ──────────────────────────────────────
-var sbSession = null; // { access_token, user }
+// ── Supabase SDK client ───────────────────────────────────
+var _sb = null;
+function getSB() {
+  if (!_sb) _sb = window.supabase.createClient(SB_URL, SB_KEY);
+  return _sb;
+}
+
+var sbSession = null;
 
 async function sbSignIn(email, password) {
-  var res = await fetch(SB_URL + '/auth/v1/token?grant_type=password', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY },
-    body: JSON.stringify({ email: email, password: password })
-  });
-  return res.json();
+  var sb = getSB();
+  var result = await sb.auth.signInWithPassword({ email: email, password: password });
+  if (result.error) return { error: result.error.message };
+  return { access_token: result.data.session.access_token, user: result.data.user };
 }
 
 async function sbSignOut() {
-  if (!sbSession) return;
-  await fetch(SB_URL + '/auth/v1/logout', {
-    method: 'POST',
-    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + sbSession.access_token }
-  });
+  var sb = getSB();
+  await sb.auth.signOut();
   sbSession = null;
 }
 
 async function sbQuery(table, params, token) {
-  var headers = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + (token || SB_KEY) };
-  var res = await fetch(SB_URL + '/rest/v1/' + table + '?' + (params||''), { headers: headers });
-  if (!res.ok) return [];
-  return res.json();
+  var sb = getSB();
+  var q = sb.from(table).select('*');
+  var result = await q;
+  if (result.error) return [];
+  return result.data;
 }
 
 async function sbInsert(table, data, token) {
-  var res = await fetch(SB_URL + '/rest/v1/' + table, {
-    method: 'POST',
-    headers: {
-      'apikey': SB_KEY,
-      'Authorization': 'Bearer ' + (token || SB_KEY),
-      'Content-Type': 'application/json',
-      'Prefer': 'return=representation'
-    },
-    body: JSON.stringify(data)
-  });
-  return res.json();
+  var sb = getSB();
+  var result = await sb.from(table).insert(data).select();
+  if (result.error) { console.error('Insert error:', result.error); return null; }
+  return result.data;
 }
 
 async function sbUpdate(table, filter, data, token) {
-  var res = await fetch(SB_URL + '/rest/v1/' + table + '?' + filter, {
-    method: 'PATCH',
-    headers: {
-      'apikey': SB_KEY,
-      'Authorization': 'Bearer ' + (token || SB_KEY),
-      'Content-Type': 'application/json',
-      'Prefer': 'return=representation'
-    },
-    body: JSON.stringify(data)
-  });
-  return res.json();
+  var sb = getSB();
+  // filter is like 'id=eq.xxx', parse it
+  var parts = filter.split('=eq.');
+  var col = parts[0]; var val = parts[1];
+  var result = await sb.from(table).update(data).eq(col, val).select();
+  if (result.error) { console.error('Update error:', result.error); return null; }
+  return result.data;
 }
 
 async function sbGetProfile(token) {
-  var res = await fetch(SB_URL + '/rest/v1/user_profiles?select=*', {
-    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
-  });
-  var rows = await res.json();
-  return rows[0] || null;
+  var sb = getSB();
+  var result = await sb.from('user_profiles').select('*');
+  if (result.error || !result.data || !result.data.length) return null;
+  return result.data[0];
 }
 
 // ============================================================

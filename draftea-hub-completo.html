@@ -1,0 +1,2887 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Draftea Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700;800;900&family=Red+Hat+Text:wght@300;400;500;600&family=Red+Hat+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+
+:root{
+  --bg:#0A0812;--s1:#0F0D1A;--s2:#151222;--s3:#1C1830;
+  --bd:rgba(255,255,255,0.06);--bd2:rgba(255,255,255,0.11);
+  --ac:#7C3AED;--ac2:#9D5FFF;--ac3:#C4A8FF;
+  --gold:#F59E0B;--green:#10B981;--red:#EF4444;--blue:#3B82F6;
+  --tx:#EDEAF5;--tx2:#9B95B8;--tx3:#5A5478;
+  --font:'Red Hat Text',sans-serif;--display:'Red Hat Display',sans-serif;--mono:'Red Hat Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--font);background:var(--bg);color:var(--tx);display:flex}
+
+/* SIDEBAR */
+.intranet-sidebar{width:220px;flex-shrink:0;height:100vh;background:var(--s1);border-right:1px solid var(--bd);display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden}
+.intranet-sidebar::-webkit-scrollbar{width:3px}
+.intranet-sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px}
+.isb-logo{padding:20px 16px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.isb-mark{width:30px;height:30px;background:var(--ac);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:800;font-size:15px;color:#fff;flex-shrink:0}
+.isb-name{font-family:var(--display);font-weight:700;font-size:15px;color:var(--tx);line-height:1.1}
+.isb-sub{font-size:9px;font-weight:600;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-top:2px}
+.isb-nav{flex:1;padding:10px 8px}
+.isb-section{font-size:10px;font-weight:600;color:var(--tx3);padding:12px 8px 4px;text-transform:uppercase;letter-spacing:.1em}
+.inav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:7px;cursor:pointer;font-size:13px;color:var(--tx2);transition:all .15s;margin-bottom:1px;position:relative}
+.inav-item:hover{color:var(--tx);background:rgba(255,255,255,0.04)}
+.inav-item.active{color:var(--tx);background:rgba(124,58,237,0.13)}
+.inav-item.active::before{content:'';position:absolute;left:0;top:22%;bottom:22%;width:2px;border-radius:0 2px 2px 0;background:var(--ac2)}
+.ni{font-size:14px;width:20px;text-align:center;flex-shrink:0}
+.live-badge{margin-left:auto;background:var(--green);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.04em}
+.isb-footer{padding:12px 10px;border-top:1px solid var(--bd)}
+.hris-entry-btn{width:100%;padding:10px 14px;background:linear-gradient(135deg,var(--ac) 0%,var(--ac2) 100%);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;font-family:var(--font);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s}
+.hris-entry-btn:hover{opacity:.88}
+
+/* TOPBAR */
+.itopbar{height:44px;padding:0 32px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:7px;font-size:13px;position:sticky;top:0;background:rgba(10,8,18,0.9);backdrop-filter:blur(16px);z-index:10;flex-shrink:0}
+.itopbar-root{color:var(--tx3)}
+.itopbar-sep{color:var(--tx3)}
+.itopbar-title{color:var(--tx);font-weight:500}
+
+/* MAIN */
+.intranet-main{flex:1;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+.intranet-main::-webkit-scrollbar{width:5px}
+.intranet-main::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px}
+.ipage{display:none}
+.ipage.active{display:block}
+
+/* HERO */
+.hero{position:relative;overflow:hidden;padding:72px 52px 56px;min-height:64vh;display:flex;flex-direction:column;justify-content:center}
+.hero-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 65% 80% at 10% 60%,rgba(124,58,237,.2) 0%,transparent 58%),radial-gradient(ellipse 45% 55% at 78% 25%,rgba(157,95,255,.09) 0%,transparent 52%)}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(157,95,255,.35);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:600;color:var(--ac3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:24px;background:rgba(124,58,237,.07);width:fit-content}
+.hero-title{font-family:var(--display);font-weight:900;font-size:clamp(50px,6.5vw,84px);line-height:.97;margin-bottom:22px;letter-spacing:-.025em}
+.hero-title .ac{color:var(--ac2)}
+.hero-title .dim{color:rgba(237,234,245,.22)}
+.hero-sub{font-size:16px;color:var(--tx2);max-width:480px;line-height:1.65;margin-bottom:36px}
+.hero-cta{display:inline-flex;align-items:center;gap:8px;background:var(--ac);color:#fff;padding:13px 26px;border-radius:9px;font-size:14px;font-weight:600;font-family:var(--font);cursor:pointer;border:none;transition:background .15s;text-decoration:none;width:fit-content}
+.hero-cta:hover{background:var(--ac2)}
+.hero-stats{display:flex;gap:0;margin-top:44px;border:1px solid var(--bd2);border-radius:11px;overflow:hidden;width:fit-content}
+.hero-stat{padding:16px 30px;text-align:center;border-right:1px solid var(--bd2)}
+.hero-stat:last-child{border-right:none}
+.hero-stat-n{font-family:var(--display);font-size:26px;font-weight:800;color:var(--ac2);line-height:1}
+.hero-stat-l{font-size:11px;color:var(--tx3);margin-top:4px;font-weight:500}
+
+/* SECTIONS */
+.isection{padding:32px 52px 48px}
+.spage-title{font-family:var(--display);font-size:28px;font-weight:800;color:var(--tx);margin-bottom:6px;letter-spacing:-.01em}
+.spage-sub{font-size:14px;color:var(--tx2);margin-bottom:28px}
+.i-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:24px}
+.i-grid-card{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:20px;transition:border-color .2s;cursor:pointer}
+.i-grid-card:hover{border-color:var(--bd2)}
+.i-grid-card h4{font-size:14px;font-weight:600;color:var(--tx);margin-bottom:7px;display:flex;align-items:center;gap:8px}
+.i-grid-card p{font-size:13px;color:var(--tx2);line-height:1.6}
+.i-card{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:22px 24px;margin-bottom:14px}
+.i-card-title{font-family:var(--display);font-size:15px;font-weight:700;color:var(--tx);margin-bottom:12px;display:flex;align-items:center;gap:9px}
+.i-card p{font-size:14px;color:var(--tx2);line-height:1.7;margin-bottom:10px}
+.i-card p:last-child{margin-bottom:0}
+.principle-card{background:var(--s2);border:1px solid var(--bd);border-left:2px solid var(--ac2);border-radius:10px;padding:18px 22px;margin-bottom:10px}
+.principle-card h4{font-size:14px;font-weight:600;color:var(--tx);margin-bottom:6px}
+.principle-card p{font-size:13px;color:var(--tx2);line-height:1.65}
+.tool-row{display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--s2);border:1px solid var(--bd);border-radius:9px;margin-bottom:8px;transition:border-color .2s}
+.tool-row:hover{border-color:var(--bd2)}
+.tool-icon{font-size:24px;flex-shrink:0}
+.tool-name{font-size:14px;font-weight:600;color:var(--tx);margin-bottom:2px}
+.tool-desc{font-size:12px;color:var(--tx2)}
+.tool-link{margin-left:auto;font-size:12px;color:var(--ac3);text-decoration:none;flex-shrink:0}
+.tool-link:hover{color:var(--ac2)}
+.contact-row{display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--s2);border:1px solid var(--bd);border-radius:9px;margin-bottom:8px}
+.c-avatar{width:40px;height:40px;border-radius:50%;background:var(--ac);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:14px}
+.c-name{font-size:14px;font-weight:600;color:var(--tx);margin-bottom:2px}
+.c-role{font-size:12px;color:var(--tx2)}
+.c-email{font-size:12px;color:var(--ac3);margin-top:3px}
+.i-pills{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.i-pill{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;background:var(--s3);border:1px solid var(--bd2);border-radius:7px;font-size:12px;color:var(--tx2);text-decoration:none;transition:all .15s;cursor:pointer}
+.i-pill:hover{border-color:var(--ac2);color:var(--ac3)}
+.i-h3{font-family:var(--display);font-size:15px;font-weight:700;color:var(--tx);margin:22px 0 12px}
+.sep{border:none;border-top:1px solid var(--bd);margin:20px 0}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:32px}
+.feat-card{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:22px}
+.feat-card-icon{font-size:26px;margin-bottom:12px}
+.feat-card-title{font-family:var(--display);font-size:15px;font-weight:700;color:var(--tx);margin-bottom:8px}
+.feat-card-desc{font-size:13px;color:var(--tx2);line-height:1.6}
+
+/* HRIS OVERLAY */
+.hris-overlay{position:fixed;inset:0;z-index:500;background:var(--bg);display:none;flex-direction:column}
+.hris-overlay.open{display:flex}
+.hris-topbar{height:44px;padding:0 16px;background:var(--s1);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:12px;flex-shrink:0}
+.hris-back-btn{background:none;border:1px solid var(--bd2);color:var(--tx2);padding:5px 12px;border-radius:7px;font-size:12px;font-family:var(--font);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s}
+.hris-back-btn:hover{border-color:var(--ac2);color:var(--ac3)}
+.hris-topbar-label{font-family:var(--display);font-size:13px;font-weight:700;color:var(--tx)}
+.hris-topbar-sub{font-size:11px;color:var(--tx3)}
+.hris-inner{flex:1;overflow:hidden;display:flex}
+
+/* LOGIN */
+.login-screen{
+  position:fixed;inset:0;z-index:9999;background:var(--sidebar);
+  display:flex;align-items:center;justify-content:center;
+  background-image:radial-gradient(ellipse at 30% 60%,rgba(109,40,217,0.35) 0%,transparent 60%),
+                   radial-gradient(ellipse at 80% 20%,rgba(139,92,246,0.15) 0%,transparent 50%);
+}
+.login-screen.hidden{display:none}
+.login-card{
+  background:#fff;border-radius:20px;padding:48px 44px;width:420px;
+  box-shadow:0 40px 80px rgba(0,0,0,0.4);
+}
+.login-logo{display:flex;align-items:center;gap:10px;margin-bottom:32px}
+.login-logomark{
+  width:40px;height:40px;background:var(--ac);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-weight:800;font-size:20px;color:#fff;
+}
+.login-brand{font-family:var(--display);font-weight:700;font-size:20px;color:var(--tx)}
+.login-title{font-family:var(--display);font-size:28px;font-weight:700;color:var(--tx);margin-bottom:6px}
+.login-sub{font-size:14px;color:var(--tx2);margin-bottom:28px}
+.lf-group{margin-bottom:16px}
+.lf-group label{display:block;font-size:12px;font-weight:600;color:var(--tx2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.lf-group input{
+  width:100%;padding:11px 13px;border:1.5px solid #E8E5DF;border-radius:10px;
+  font-size:15px;font-family:var(--font);color:var(--tx);outline:none;transition:border-color .2s;background:#fff;
+}
+.lf-group input:focus{border-color:var(--ac)}
+.login-error{background:#FEF2F2;color:#B91C1C;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px}
+.login-btn{
+  width:100%;padding:13px;background:var(--ac);color:#fff;border:none;border-radius:10px;
+  font-size:15px;font-weight:600;font-family:var(--font);cursor:pointer;transition:background .18s;
+}
+.login-btn:hover{background:var(--ac2)}
+.login-demo{margin-top:18px;padding:14px;background:#F7F6F3;border-radius:10px;font-size:12px;color:var(--tx2);line-height:1.8}
+.login-demo strong{color:var(--tx);display:block;margin-bottom:4px}
+
+/* SIDEBAR */
+.sidebar{
+  width:224px;flex-shrink:0;height:100vh;background:var(--sidebar);
+  display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;
+}
+.sidebar::-webkit-scrollbar{width:3px}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
+.sb-header{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.sb-logo{display:flex;align-items:center;gap:9px}
+.sb-logomark{
+  width:32px;height:32px;background:var(--ac);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-weight:800;font-size:16px;color:#fff;flex-shrink:0;
+}
+.sb-brand{font-family:var(--display);font-weight:700;font-size:15px;color:#fff}
+.sb-brand small{display:block;font-size:10px;color:rgba(255,255,255,0.35);font-family:var(--font);font-weight:400;letter-spacing:.05em;text-transform:uppercase;margin-top:1px}
+.sb-user{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:9px}
+.sb-avatar{
+  width:30px;height:30px;border-radius:50%;background:rgba(139,92,246,0.3);
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#C4B5FD;flex-shrink:0;
+}
+.sb-uname{font-size:13px;color:#fff;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-role{font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:.05em}
+.sb-nav{flex:1;padding:10px 10px}
+.sb-section{font-size:10px;color:rgba(255,255,255,0.25);padding:10px 8px 4px;text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+.nav-item{
+  display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;
+  cursor:pointer;font-size:13px;color:rgba(255,255,255,0.5);transition:all .15s;
+  border-left:2px solid transparent;margin-bottom:1px;
+}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,0.06)}
+.nav-item.active{color:#fff;background:rgba(139,92,246,0.18);border-left-color:var(--ac2)}
+.nav-item .ni-icon{font-size:14px;width:18px;text-align:center}
+.nav-badge{
+  margin-left:auto;background:var(--gold);color:#1C1A26;
+  font-size:10px;font-weight:700;padding:2px 6px;border-radius:20px;
+}
+.sb-footer{padding:14px 16px;border-top:1px solid rgba(255,255,255,0.08)}
+.sb-logout{background:none;border:none;color:rgba(255,255,255,0.3);font-size:12px;cursor:pointer;font-family:var(--font)}
+.sb-logout:hover{color:rgba(255,255,255,0.7)}
+
+/* MAIN */
+.main{flex:1;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+.main::-webkit-scrollbar{width:5px}
+.main::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+.page-header{padding:28px 32px 0}
+.page-title{font-family:var(--display);font-size:26px;font-weight:700;color:var(--tx)}
+.page-sub{font-size:13px;color:var(--tx2);margin-top:3px}
+.page-body{padding:20px 32px 32px;flex:1}
+
+/* STATS */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.kpi-card{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:18px 20px;position:relative;overflow:hidden;
+}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi-card.purple::before{background:var(--ac)}
+.kpi-card.green::before{background:var(--green)}
+.kpi-card.gold::before{background:var(--gold)}
+.kpi-card.blue::before{background:var(--blue)}
+.kpi-card.red::before{background:var(--red)}
+.kpi-label{font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px}
+.kpi-value{font-family:var(--display);font-size:30px;font-weight:700;color:var(--tx);margin:6px 0 2px;line-height:1}
+.kpi-sub{font-size:12px;color:var(--tx3)}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 22px;margin-bottom:16px}
+.card-title{font-weight:600;font-size:14px;color:var(--tx);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+
+/* TABLE */
+.tbl-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.tbl-top{
+  padding:14px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.tbl-top h3{font-size:14px;font-weight:600;color:var(--tx);flex:1}
+.tbl-search{
+  padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;
+  font-size:13px;font-family:var(--font);outline:none;width:200px;transition:border-color .2s;
+}
+.tbl-search:focus{border-color:var(--ac)}
+.tbl-filter-row{padding:10px 20px;border-bottom:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap}
+table{width:100%;border-collapse:collapse}
+thead th{
+  padding:10px 20px;text-align:left;font-size:11px;font-weight:600;
+  color:var(--tx3);text-transform:uppercase;letter-spacing:.5px;
+  background:var(--bg);border-bottom:1px solid var(--border);
+}
+tbody td{padding:12px 20px;font-size:13px;color:var(--tx);border-bottom:1px solid #F5F4F0}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#FAFAF8}
+.avatar{
+  width:30px;height:30px;border-radius:50%;background:var(--ac);color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;
+}
+.name-cell{display:flex;align-items:center;gap:9px}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500}
+.b-purple{background:rgba(109,40,217,0.1);color:var(--ac)}
+.b-green{background:#F0FDF4;color:#166534}
+.b-red{background:#FEF2F2;color:#991B1B}
+.b-orange{background:#FFF7ED;color:#9A3412}
+.b-blue{background:#EFF6FF;color:#1D4ED8}
+.b-gray{background:#F5F4F2;color:var(--tx2)}
+.b-gold{background:#FFFBEB;color:#92400E}
+
+/* FILTER PILLS */
+.fpill{
+  padding:5px 12px;border-radius:20px;font-size:12px;cursor:pointer;
+  border:1.5px solid var(--border);background:#fff;color:var(--tx2);font-family:var(--font);transition:all .15s;
+}
+.fpill:hover{border-color:var(--ac);color:var(--ac)}
+.fpill.active{background:var(--ac);border-color:var(--ac);color:#fff}
+
+/* DRAWER */
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:100;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(3px)}
+.drawer-overlay.open{opacity:1;pointer-events:all}
+.drawer{
+  position:fixed;top:0;right:0;bottom:0;width:520px;background:#fff;z-index:101;
+  transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);
+  overflow-y:auto;box-shadow:-20px 0 60px rgba(0,0,0,0.15);
+}
+.drawer.open{transform:translateX(0)}
+.drawer::-webkit-scrollbar{width:4px}
+.drawer::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.drawer-header{
+  padding:24px 24px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;gap:14px;
+  background:linear-gradient(135deg,rgba(109,40,217,0.05) 0%,transparent 60%);
+  position:sticky;top:0;background:#fff;z-index:1;
+}
+.drawer-avatar{
+  width:52px;height:52px;border-radius:14px;background:var(--ac);
+  display:flex;align-items:center;justify-content:center;font-family:var(--display);
+  font-size:22px;font-weight:700;color:#fff;flex-shrink:0;
+}
+.drawer-name{font-family:var(--display);font-size:20px;font-weight:700;color:var(--tx)}
+.drawer-role{font-size:13px;color:var(--tx2);margin-top:2px}
+.drawer-close{margin-left:auto;background:none;border:none;font-size:20px;cursor:pointer;color:var(--tx3);padding:4px;line-height:1}
+.drawer-body{padding:20px 24px}
+.drawer-section{margin-bottom:20px}
+.drawer-section-title{font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.info-item label{font-size:11px;color:var(--tx3);display:block;margin-bottom:2px}
+.info-item span{font-size:13px;color:var(--tx);font-weight:500}
+.salary-big{font-family:var(--display);font-size:28px;font-weight:700;color:var(--ac)}
+.salary-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)}
+.salary-row:last-child{border-bottom:none}
+.pct-pill{font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px;background:#F0FDF4;color:#166534}
+.perf-bar-wrap{height:6px;background:var(--border);border-radius:3px;flex:1}
+.perf-bar{height:6px;border-radius:3px;background:var(--ac)}
+.drawer-tabs{display:flex;gap:4px;margin-bottom:18px;background:var(--bg);padding:3px;border-radius:9px}
+.dtab{padding:7px 14px;border-radius:7px;font-size:13px;cursor:pointer;color:var(--tx2);font-family:var(--font);border:none;background:transparent;transition:all .15s;font-weight:500}
+.dtab.active{background:#fff;color:var(--tx);box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+
+/* VACATION REQUEST */
+.vac-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.vac-form-grid input,.vac-form-grid select{
+  padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;
+  font-size:13px;font-family:var(--font);outline:none;width:100%;
+}
+.vac-form-full input,.vac-form-full textarea{
+  width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;
+  font-size:13px;font-family:var(--font);outline:none;resize:none;
+}
+
+/* VACATION APPROVE CARD */
+.vac-req-card{
+  border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;
+  background:#fff;
+}
+.vac-req-card.pending{border-left:3px solid var(--gold)}
+.vac-req-card.approved{border-left:3px solid var(--green)}
+.vac-req-card.rejected{border-left:3px solid var(--red)}
+
+/* PROGRESS BARS */
+.prog-wrap{height:6px;background:var(--border);border-radius:3px;margin-top:4px}
+.prog-bar{height:6px;border-radius:3px}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:24px;right:24px;padding:13px 18px;border-radius:10px;
+  font-size:13px;font-weight:500;color:#fff;z-index:9000;
+  box-shadow:0 8px 24px rgba(0,0,0,0.2);animation:slideUp .3s ease;
+}
+.toast.success{background:#166534}
+.toast.error{background:#991B1B}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* UTILS */
+.flex{display:flex}.items-c{align-items:center}.gap-2{gap:8px}.gap-3{gap:12px}.ml-a{margin-left:auto}
+.btn{
+  display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;
+  font-size:13px;font-weight:500;font-family:var(--font);cursor:pointer;border:none;transition:all .15s;
+}
+.btn-primary{background:var(--ac);color:#fff}.btn-primary:hover{background:var(--ac2)}
+.btn-ghost{background:transparent;color:var(--tx2);border:1.5px solid var(--border)}.btn-ghost:hover{border-color:var(--tx3);color:var(--tx)}
+.btn-success{background:#F0FDF4;color:#166534;border:1.5px solid #BBF7D0}.btn-success:hover{background:#DCFCE7}
+.btn-danger{background:#FEF2F2;color:#991B1B;border:1.5px solid #FECACA}.btn-danger:hover{background:#FEE2E2}
+.btn-sm{padding:5px 12px;font-size:12px}
+.back-btn{display:flex;align-items:center;gap:5px;background:none;border:none;color:var(--tx2);font-size:13px;cursor:pointer;font-family:var(--font);margin-bottom:16px;padding:0}
+.back-btn:hover{color:var(--ac)}
+.section-sep{border:none;border-top:1px solid var(--border);margin:16px 0}
+.hidden{display:none!important}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+
+
+/* ============================================================
+   END COMBINED CSS
+   ============================================================ */
+
+/* ══ RESOURCE ROW (link cards with icon + arrow) ══ */
+.res-row{
+  display:flex;align-items:center;gap:16px;padding:16px 20px;
+  background:var(--s2);border:1px solid var(--bd);border-radius:10px;
+  margin-bottom:10px;cursor:pointer;transition:border-color .2s;text-decoration:none;
+}
+.res-row:hover{border-color:var(--bd2)}
+.res-icon{
+  width:40px;height:40px;border-radius:8px;background:rgba(124,58,237,.18);
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+}
+.res-body{flex:1}
+.res-title{font-size:14px;font-weight:600;color:var(--tx);margin-bottom:3px}
+.res-desc{font-size:12px;color:var(--tx2)}
+.res-arrow{color:var(--tx3);font-size:16px;flex-shrink:0}
+
+/* ══ NUMBERED STEPS ══ */
+.step{display:flex;align-items:flex-start;gap:14px;padding:16px 0;border-bottom:1px solid var(--bd)}
+.step:last-child{border-bottom:none}
+.step-num{
+  width:32px;height:32px;border-radius:50%;background:rgba(124,58,237,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:var(--ac3);flex-shrink:0;margin-top:1px;
+}
+.step-title{font-size:14px;font-weight:600;color:var(--tx);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.step-desc{font-size:13px;color:var(--tx2);line-height:1.6}
+.step-badge{font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;background:rgba(124,58,237,.2);color:var(--ac3)}
+
+/* ══ PAGE EYEBROW ══ */
+.page-eyebrow{
+  font-size:11px;font-weight:700;color:var(--ac2);
+  letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;
+}
+/* ══ SECTION LABEL (inside page) ══ */
+.sect-label{
+  font-size:11px;font-weight:600;color:var(--tx3);
+  letter-spacing:.08em;text-transform:uppercase;margin:24px 0 10px;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ══ INTRANET ══════════════════════════════════════════ -->
+<div id="intranetWrap" style="display:flex;width:100%;height:100vh">
+
+  <div class="intranet-sidebar">
+    <div class="isb-logo">
+      <div class="isb-mark">D</div>
+      <div>
+        <div class="isb-name">Draftea</div>
+        <div class="isb-sub">Hub Interno</div>
+      </div>
+    </div>
+    <div class="isb-nav">
+      <div class="isb-section">Inicio</div>
+      <div class="inav-item active" id="inav-worldcup" onclick="iNav('worldcup',this)">
+        <span class="ni">⚽</span> World Cup <span class="live-badge">LIVE</span>
+      </div>
+
+      <div class="isb-section">Empresa</div>
+      <div class="inav-item" id="inav-intro" onclick="iNav('intro',this)"><span class="ni">🏠</span> Intro &amp; Producto</div>
+      <div class="inav-item" id="inav-proposito" onclick="iNav('proposito',this)"><span class="ni">🚀</span> Propósito</div>
+      <div class="inav-item" id="inav-principios" onclick="iNav('principios',this)"><span class="ni">⚡</span> Principios</div>
+      <div class="inav-item" id="inav-organizacion" onclick="iNav('organizacion',this)"><span class="ni">🗂️</span> Organización</div>
+
+      <div class="isb-section">People</div>
+      <div class="inav-item" id="inav-feedback" onclick="iNav('feedback',this)"><span class="ni">💬</span> Feedback &amp; 1:1</div>
+      <div class="inav-item" id="inav-sesame" onclick="iNav('sesame',this)"><span class="ni">🌱</span> SesameHR</div>
+      <div class="inav-item" id="inav-beneficios" onclick="iNav('beneficios',this)"><span class="ni">🎁</span> Beneficios</div>
+      <div class="inav-item" id="inav-contacto" onclick="iNav('contacto',this)"><span class="ni">📩</span> Contacto People</div>
+
+      <div class="isb-section">Producto</div>
+      <div class="inav-item" id="inav-app" onclick="iNav('app',this)"><span class="ni">📱</span> Nuestra App</div>
+
+      <div class="isb-section">Recursos</div>
+      <div class="inav-item" id="inav-herramientas" onclick="iNav('herramientas',this)"><span class="ni">🛠️</span> Herramientas</div>
+      <div class="inav-item" id="inav-branding" onclick="iNav('branding',this)"><span class="ni">🎨</span> Branding &amp; Redes</div>
+    </div>
+    <div class="isb-footer">
+      <button class="hris-entry-btn" onclick="openHRIS()">🔐 People Hub — RRHH</button>
+    </div>
+  </div>
+
+  <div class="intranet-main">
+    <div class="itopbar">
+      <span class="itopbar-root">Draftea Hub</span>
+      <span class="itopbar-sep">/</span>
+      <span class="itopbar-title" id="itopbarTitle">World Cup</span>
+    </div>
+
+
+    <!-- WORLD CUP -->
+    <div class="ipage active" id="ipage-worldcup">
+      <div class="hero">
+        <div class="hero-glow"></div>
+        <div style="position:relative;z-index:1">
+          <div class="hero-eyebrow">⚽ Competencia Interna · 2026</div>
+          <div class="hero-title">Draftea<br/><span class="ac">World</span> <span class="dim">Cup</span></div>
+          <p class="hero-sub">El campeonato interno de Draftea al estilo Copa del Mundo. Sigue el bracket, los resultados y la tabla de posiciones en tiempo real.</p>
+          <a class="hero-cta" href="https://app.hex.tech/4144b4ef-8a94-4da2-854e-cce1a2abfc9a/app/Campeonato-Interno-Draftea---Modo-Mundial-032fhdVQsEFRzYknXvjeye/latest" target="_blank">Ver el torneo en vivo →</a>
+          <div class="hero-stats">
+            <div class="hero-stat"><div class="hero-stat-n">94</div><div class="hero-stat-l">Jugadores</div></div>
+            <div class="hero-stat"><div class="hero-stat-n">∞</div><div class="hero-stat-l">Pasión</div></div>
+            <div class="hero-stat"><div class="hero-stat-n">1</div><div class="hero-stat-l">Campeón</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="isection" style="padding-top:0">
+        <div class="feat-grid">
+          <div class="feat-card"><div class="feat-card-icon">🥇</div><div class="feat-card-title">Bracket completo</div><div class="feat-card-desc">Fase de grupos, octavos, cuartos, semis y la gran final. Todo en tiempo real.</div></div>
+          <div class="feat-card"><div class="feat-card-icon">📊</div><div class="feat-card-title">Tabla en tiempo real</div><div class="feat-card-desc">Resultados actualizados al instante. Mira cómo va tu equipo en el torneo.</div></div>
+          <div class="feat-card"><div class="feat-card-icon">🎁</div><div class="feat-card-title">Premios</div><div class="feat-card-desc">Los mejores del torneo se llevan algo especial. El honor y los premios te esperan.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INTRO & PRODUCTO -->
+    <div class="ipage" id="ipage-intro">
+      <div class="hero" style="min-height:45vh">
+        <div class="hero-glow"></div>
+        <div style="position:relative;z-index:1">
+          <div class="hero-eyebrow">🎰 Sports Betting · LATAM &amp; Brasil</div>
+          <div class="hero-title">Bienvenido a<br/><span class="ac">Draftea</span></div>
+          <p class="hero-sub">Tu portal interno con todo lo que necesitás saber sobre la empresa, cultura, herramientas y beneficios.</p>
+          <div class="hero-stats">
+            <div class="hero-stat"><div class="hero-stat-n">2</div><div class="hero-stat-l">Empresas</div></div>
+            <div class="hero-stat"><div class="hero-stat-n">8+</div><div class="hero-stat-l">Países</div></div>
+            <div class="hero-stat"><div class="hero-stat-n">80+</div><div class="hero-stat-l">Personas</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="isection" style="padding-top:0">
+        <div class="i-grid">
+          <div class="i-grid-card" onclick="iNav('proposito')"><h4>🚀 Propósito</h4><p>Por qué existimos y hacia dónde vamos.</p></div>
+          <div class="i-grid-card" onclick="iNav('principios')"><h4>⚡ Principios</h4><p>Los valores que guían cómo trabajamos.</p></div>
+          <div class="i-grid-card" onclick="iNav('beneficios')"><h4>🎁 Beneficios</h4><p>Todo lo que Draftea ofrece más allá del salario.</p></div>
+          <div class="i-grid-card" onclick="iNav('herramientas')"><h4>🛠️ Herramientas</h4><p>El stack que usamos en el día a día.</p></div>
+          <div class="i-grid-card" onclick="iNav('sesame')"><h4>🌱 SesameHR</h4><p>Vacaciones, asistencia y documentos.</p></div>
+          <div class="i-grid-card" onclick="openHRIS()" style="border-color:rgba(124,58,237,.25)"><h4>🔐 People Hub</h4><p>Acceso al sistema de RRHH con tu cuenta corporativa.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROPÓSITO -->
+    <div class="ipage" id="ipage-proposito">
+      <div class="isection">
+        <div class="page-eyebrow">Empresa</div>
+        <div class="spage-title">Nuestro Propósito</div>
+        <p style="font-size:15px;color:var(--tx2);margin-bottom:32px;line-height:1.7;max-width:680px">Construir la plataforma de entretenimiento deportivo más emocionante de Latinoamérica — donde los fanáticos puedan predecir, competir y ganar.</p>
+        <div class="sect-label">Misión</div>
+        <div class="i-card"><p>Combinamos tecnología de punta, datos en tiempo real y una experiencia de usuario excepcional para transformar cómo las personas viven el deporte.</p></div>
+        <div class="sect-label">Visión 2026</div>
+        <div class="i-card"><p>Ser la plataforma líder de sports betting y fantasy sports en LATAM, con presencia en 10+ países y más de 1 millón de usuarios activos. Con <strong style="color:var(--ac3)">Rei do Pitaco</strong> somos la plataforma de fantasy más grande de Brasil, con más de 10 millones de usuarios.</p></div>
+      </div>
+    </div>
+
+    <!-- PRINCIPIOS -->
+    <div class="ipage" id="ipage-principios">
+      <div class="isection">
+        <div class="page-eyebrow">Empresa</div>
+        <div class="spage-title">Nuestros Valores</div>
+        <p style="font-size:15px;color:var(--tx2);margin-bottom:32px;line-height:1.7;max-width:680px">Who we are, permanently.</p>
+
+        <div class="principle-card">
+          <h4>🔥 Passion</h4>
+          <p>Our industry is about passion: for sports, for games, for moments that make people scream with joy. We need passionate people to build what comes next.</p>
+          <div style="margin-top:12px">
+            <div style="font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Looks like</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+              <span style="font-size:12px;color:var(--tx2);background:var(--s3);padding:3px 10px;border-radius:20px">Bringing energy to work</span>
+              <span style="font-size:12px;color:var(--tx2);background:var(--s3);padding:3px 10px;border-radius:20px">Caring deeply about outcomes</span>
+              <span style="font-size:12px;color:var(--tx2);background:var(--s3);padding:3px 10px;border-radius:20px">Fighting for what makes the product better</span>
+            </div>
+            <div style="font-size:12px;color:var(--ac3);font-style:italic">Ask yourself: What am I passionate for?</div>
+          </div>
+        </div>
+
+        <div class="principle-card">
+          <h4>🎯 Ownership &amp; Empowerment</h4>
+          <p>We're owners, not employees. We see what needs to happen and we build it. We don't wait. We're persistent and brave in the face of challenges. We make decisions with conviction and move forward without fear.</p>
+          <div style="margin-top:12px">
+            <div style="font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Looks like</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+              <span style="font-size:12px;color:var(--tx2);background:var(--s3);padding:3px 10px;border-radius:20px">Taking responsibility for outcomes</span>
+              <span style="font-size:12px;color:var(--tx2);background:var(--s3);padding:3px 10px;border-radius:20px">Fixing problems you see</span>
+              <span style="font-size:12px;color:var(--tx2);background:var(--s3);padding:3px 10px;border-radius:20px">Making confident decisions</span>
+              <span style="font-size:12px;color:var(--tx2);background:var(--s3);padding:3px 10px;border-radius:20px">Empowering others</span>
+              <span style="font-size:12px;color:var(--tx2);background:var(--s3);padding:3px 10px;border-radius:20px">Moving forward despite uncertainty</span>
+            </div>
+            <div style="font-size:12px;color:var(--ac3);font-style:italic">Ask yourself: Am I acting like an owner or just completing tasks?</div>
+          </div>
+        </div>
+
+        <div class="principle-card">
+          <h4>📊 Measured Impact</h4>
+          <p>We love measuring impact and HAVING impact. Data-driven to our core. We ship things that move the needle. We demand quality in everything we do: product, processes, culture, and impact.</p>
+          <div style="margin-top:12px">
+            <div style="font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Looks like</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+              <span style="font-size:12px;color:var(--tx2);background:var(--s3);padding:3px 10px;border-radius:20px">Defining success metrics upfront</span>
+              <span style="font-size:12px;color:var(--tx2);background:var(--s3);padding:3px 10px;border-radius:20px">Tracking what matters</span>
+              <span style="font-size:12px;color:var(--tx2);background:var(--s3);padding:3px 10px;border-radius:20px">Making data-driven decisions</span>
+              <span style="font-size:12px;color:var(--tx2);background:var(--s3);padding:3px 10px;border-radius:20px">Learning from results</span>
+              <span style="font-size:12px;color:var(--tx2);background:var(--s3);padding:3px 10px;border-radius:20px">Delivering high-quality work</span>
+              <span style="font-size:12px;color:var(--tx2);background:var(--s3);padding:3px 10px;border-radius:20px">Caring about details</span>
+            </div>
+            <div style="font-size:12px;color:var(--ac3);font-style:italic">Ask yourself: Can I prove my work is having impact?</div>
+          </div>
+        </div>
+
+        <div class="principle-card">
+          <h4>❤️ Customer Centricity</h4>
+          <p>We put customers at the center. We build WITH them, not just FOR them. Every decision starts with: "Does this help our customers?"</p>
+          <div style="margin-top:12px">
+            <div style="font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Looks like</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+              <span style="font-size:12px;color:var(--tx2);background:var(--s3);padding:3px 10px;border-radius:20px">Starting decisions with customer impact</span>
+              <span style="font-size:12px;color:var(--tx2);background:var(--s3);padding:3px 10px;border-radius:20px">Listening and acting on feedback</span>
+              <span style="font-size:12px;color:var(--tx2);background:var(--s3);padding:3px 10px;border-radius:20px">Obsessing over their problems</span>
+              <span style="font-size:12px;color:var(--tx2);background:var(--s3);padding:3px 10px;border-radius:20px">Protecting customer experience</span>
+            </div>
+            <div style="font-size:12px;color:var(--ac3);font-style:italic">Ask yourself: Would I love this if I were the customer?</div>
+          </div>
+        </div>
+
+        <div class="principle-card">
+          <h4>🤝 Collaboration</h4>
+          <p>Across areas, products and countries, we're one company helping each other. No silos. The best ideas come from working together. We treat users, partners, and teammates with respect. We speak the truth and follow rules and processes.</p>
+          <div style="margin-top:12px">
+            <div style="font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Looks like</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+              <span style="font-size:12px;color:var(--tx2);background:var(--s3);padding:3px 10px;border-radius:20px">Sharing knowledge generously</span>
+              <span style="font-size:12px;color:var(--tx2);background:var(--s3);padding:3px 10px;border-radius:20px">Helping whoever needs it</span>
+              <span style="font-size:12px;color:var(--tx2);background:var(--s3);padding:3px 10px;border-radius:20px">Building bridges</span>
+              <span style="font-size:12px;color:var(--tx2);background:var(--s3);padding:3px 10px;border-radius:20px">Celebrating team wins and losses</span>
+            </div>
+            <div style="font-size:12px;color:var(--ac3);font-style:italic">Ask yourself: Am I building bridges or walls?</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ORGANIZACIÓN -->
+    <div class="ipage" id="ipage-organizacion">
+      <div class="isection">
+        <div class="page-eyebrow">Empresa</div>
+        <div class="spage-title">Nuestra Organización</div>
+        <p style="font-size:15px;color:var(--tx2);margin-bottom:32px;line-height:1.7;max-width:680px">Estructura del equipo y recursos de referencia.</p>
+        <a class="res-row" href="https://miro.com/app/board/uXjVOzFXVNI=/" target="_blank">
+          <div class="res-icon">🗺️</div>
+          <div class="res-body"><div class="res-title">Org Chart en Miro</div><div class="res-desc">Estructura organizativa completa de Draftea</div></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <a class="res-row" href="https://docs.google.com/spreadsheets/d/1ycxyO3eRZ-fzKHfKc8tUbpWkoehjTvg-tulkT5JQd6Q/edit?gid=0#gid=0" target="_blank">
+          <div class="res-icon">📖</div>
+          <div class="res-body"><div class="res-title">Diccionario Draftea</div><div class="res-desc">Siglas, términos y definiciones internas</div></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <a class="res-row" href="#" target="_blank" id="link-politicas">
+          <div class="res-icon">📋</div>
+          <div class="res-body"><div class="res-title">Políticas Internas</div><div class="res-desc">Carpeta con todos los documentos y políticas · <span style="color:var(--ac3)">link pendiente</span></div></div>
+          <div class="res-arrow">→</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- FEEDBACK & 1:1 -->
+    <div class="ipage" id="ipage-feedback">
+      <div class="isection">
+        <div class="page-eyebrow">People</div>
+        <div class="spage-title">Cultura de Feedback Continuo</div>
+        <p style="font-size:15px;color:var(--tx2);margin-bottom:32px;line-height:1.7;max-width:680px">El feedback debe ser un intercambio respetuoso, honesto y muy claro para que sea efectivo.</p>
+        <div class="sect-label">Documento de referencia</div>
+        <a class="res-row" href="#" target="_blank" id="link-feedback-guia">
+          <div class="res-icon">📄</div>
+          <div class="res-body"><div class="res-title">Guía de Feedback &amp; 1:1</div><div class="res-desc">Google Docs · Proceso completo · <span style="color:var(--ac3)">link pendiente</span></div></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <div style="margin-top:24px">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div><div class="step-title">Sesiones 1:1</div><div class="step-desc">Avances y feedback continuo sobre tareas, objetivos y proyectos del día a día.</div></div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div><div class="step-title">Performance Feedback <span class="step-badge">Semestral</span></div><div class="step-desc">Una sesión por semestre que resume los últimos 6 meses con evaluación del 1 al 10.</div><div style="margin-top:8px"><a href="https://docs.google.com/document/d/1NPPbmc51W0hOzWqPGEUEuSKSY5TjDIlfnxtLJKQBd5M/edit?tab=t.0#heading=h.60p6dvwtxplp" target="_blank" style="font-size:12px;color:var(--ac3);text-decoration:none">Ver documento →</a></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SESAME HR -->
+    <div class="ipage" id="ipage-sesame">
+      <div class="isection">
+        <div class="page-eyebrow">People</div>
+        <div class="spage-title">SesameHR</div>
+        <p style="font-size:15px;color:var(--tx2);margin-bottom:32px;line-height:1.7;max-width:680px">Tu plataforma de gestión de RRHH del día a día. Accedé con tu email corporativo.</p>
+        <div class="sect-label">Acceso</div>
+        <a class="res-row" href="https://sesamehr.com" target="_blank">
+          <div class="res-icon">🌱</div>
+          <div class="res-body"><div class="res-title">Abrir SesameHR</div><div class="res-desc">sesamehr.com · Login con cuenta corporativa</div></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <div class="sect-label">Tutoriales en video</div>
+        <a class="res-row" href="#" target="_blank" id="vid-vacaciones">
+          <div class="res-icon">🎬</div>
+          <div class="res-body"><div class="res-title">¿Cómo pedir vacaciones y registrar feriados?</div><div class="res-desc">Video tutorial · SesameHR</div></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <a class="res-row" href="#" target="_blank" id="vid-perfil">
+          <div class="res-icon">🎬</div>
+          <div class="res-body"><div class="res-title">¿Cómo actualizar tu perfil?</div><div class="res-desc">Video tutorial · SesameHR</div></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <a class="res-row" href="#" target="_blank" id="vid-denuncia">
+          <div class="res-icon">🎬</div>
+          <div class="res-body"><div class="res-title">¿Cómo hacer una denuncia?</div><div class="res-desc">Video tutorial · SesameHR</div></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <a class="res-row" href="https://docs.google.com/document/d/1NPPbmc51W0hOzWqPGEUEuSKSY5TjDIlfnxtLJKQBd5M/edit?tab=t.0#heading=h.60p6dvwtxplp" target="_blank">
+          <div class="res-icon">🎬</div>
+          <div class="res-body"><div class="res-title">Video demostrativo — Performance Feedback</div><div class="res-desc">Proceso de evaluación trimestral</div></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <div class="sect-label" style="margin-top:28px">¿Qué podés hacer?</div>
+        <div class="i-grid">
+          <div class="i-grid-card"><h4>🌴 Vacaciones</h4><p>Solicitar días libres y ver tu saldo disponible.</p></div>
+          <div class="i-grid-card"><h4>📋 Asistencia</h4><p>Registrar entradas/salidas y ver historial.</p></div>
+          <div class="i-grid-card"><h4>📄 Documentos</h4><p>Acceder a recibos de sueldo y contratos.</p></div>
+          <div class="i-grid-card"><h4>👤 Perfil</h4><p>Actualizar tus datos personales.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BENEFICIOS -->
+    <div class="ipage" id="ipage-beneficios">
+      <div class="isection">
+        <div class="page-eyebrow">People</div>
+        <div class="spage-title">Nuestros Beneficios</div>
+        <p style="font-size:15px;color:var(--tx2);margin-bottom:32px;line-height:1.7;max-width:680px">Todo lo que Draftea pone a tu disposición.</p>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+          <div class="i-grid-card" style="display:flex;align-items:flex-start;gap:14px;padding:22px">
+            <div style="font-size:28px;flex-shrink:0">🕐</div>
+            <div><div style="font-size:15px;font-weight:700;color:var(--tx);margin-bottom:6px">Horario Flexible &amp; Remoto</div><div style="font-size:13px;color:var(--tx2);line-height:1.6">Cumplí tus objetivos cuando y desde donde quieras.</div></div>
+          </div>
+          <div class="i-grid-card" style="display:flex;align-items:flex-start;gap:14px;padding:22px">
+            <div style="font-size:28px;flex-shrink:0">✈️</div>
+            <div><div style="font-size:15px;font-weight:700;color:var(--tx);margin-bottom:6px">Summits Anuales</div><div style="font-size:13px;color:var(--tx2);line-height:1.6">Nos reunimos 1 semana al año en algún destino. Todo cubierto por Draftea.</div></div>
+          </div>
+          <div class="i-grid-card" style="display:flex;align-items:flex-start;gap:14px;padding:22px">
+            <div style="font-size:28px;flex-shrink:0">🏖️</div>
+            <div><div style="font-size:15px;font-weight:700;color:var(--tx);margin-bottom:6px">Días Libres Ilimitados</div><div style="font-size:13px;color:var(--tx2);line-height:1.6">Descansá, viajá, disfrutá y desconectá.</div></div>
+          </div>
+          <div class="i-grid-card" style="display:flex;align-items:flex-start;gap:14px;padding:22px">
+            <div style="font-size:28px;flex-shrink:0">📈</div>
+            <div><div style="font-size:15px;font-weight:700;color:var(--tx);margin-bottom:6px">Stock Options</div><div style="font-size:13px;color:var(--tx2);line-height:1.6">Todos somos parte del proyecto.</div></div>
+          </div>
+          <div class="i-grid-card" style="display:flex;align-items:flex-start;gap:14px;padding:22px">
+            <div style="font-size:28px;flex-shrink:0">📚</div>
+            <div><div style="font-size:15px;font-weight:700;color:var(--tx);margin-bottom:6px">Cursos &amp; Formación</div><div style="font-size:13px;color:var(--tx2);line-height:1.6">USD 500/año para cursos y talleres.</div></div>
+          </div>
+          <div class="i-grid-card" style="display:flex;align-items:flex-start;gap:14px;padding:22px">
+            <div style="font-size:28px;flex-shrink:0">💻</div>
+            <div><div style="font-size:15px;font-weight:700;color:var(--tx);margin-bottom:6px">Computadora</div><div style="font-size:13px;color:var(--tx2);line-height:1.6">Recibís una computadora desde el primer día.</div></div>
+          </div>
+        </div>
+
+        <div style="background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.25);border-radius:12px;padding:22px 26px;font-size:14px;color:var(--tx2);line-height:1.8">
+          Para solicitar algún <strong style="color:var(--ac3)">extra device</strong> o hacer uso de tu <strong style="color:var(--ac3)">stipend de USD 500</strong> para aprendizaje continuo, enviá una solicitud con el link del device o curso a <a href="mailto:people@draftea.com" style="color:var(--ac3);text-decoration:none">people@draftea.com</a>, con copia a tu manager directo y a <a href="mailto:finance@draftea.com" style="color:var(--ac3);text-decoration:none">finance@draftea.com</a>. People evaluará si es aprobada y te contestará lo antes posible.
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACTO PEOPLE -->
+    <div class="ipage" id="ipage-contacto">
+      <div class="isection">
+        <div class="page-eyebrow">People</div>
+        <div class="spage-title">Contacto People</div>
+        <p style="font-size:15px;color:var(--tx2);margin-bottom:32px;line-height:1.7;max-width:680px">El equipo de People está para acompañarte en todo momento.</p>
+        <div class="contact-row"><div class="c-avatar">PV</div><div><div class="c-name">Paola Villagomez</div><div class="c-role">Head of People</div><div class="c-email">paola.villagomez@draftea.com</div></div></div>
+        <div class="contact-row"><div class="c-avatar">CC</div><div><div class="c-name">Camila Cofré</div><div class="c-role">HRBP</div><div class="c-email">camila.cofre@draftea.com</div></div></div>
+        <div class="contact-row"><div class="c-avatar">VM</div><div><div class="c-name">Vicente Mardones</div><div class="c-role">Talent Acquisition</div><div class="c-email">vicente.mardones@draftea.com</div></div></div>
+        <div class="sect-label" style="margin-top:28px">¿Cuándo contactar a People?</div>
+        <div class="i-pills">
+          <span class="i-pill">🌴 Vacaciones</span><span class="i-pill">📄 Documentos</span>
+          <span class="i-pill">💬 Inquietudes</span><span class="i-pill">📈 Carrera</span>
+          <span class="i-pill">🤝 Onboarding</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- NUESTRA APP -->
+    <div class="ipage" id="ipage-app">
+      <div class="isection">
+        <div class="page-eyebrow">Producto</div>
+        <div class="spage-title">Nuestra App</div>
+        <p style="font-size:15px;color:var(--tx2);margin-bottom:32px;line-height:1.7;max-width:680px">Conocé el producto que construimos juntos.</p>
+        <div class="i-card"><p>Draftea es una plataforma de sports betting y fantasy sports en México, Chile, Argentina, Colombia, Perú, Uruguay y Bolivia.</p><p style="margin-top:10px">Con <strong style="color:var(--ac3)">Rei do Pitaco</strong> somos la plataforma de fantasy más grande de Brasil, con más de 10 millones de usuarios registrados.</p></div>
+
+        <div class="sect-label">Descarga la app</div>
+        <a class="res-row" href="https://appdistribution.firebase.dev/i/188673c49a40f4d2" target="_blank">
+          <div class="res-icon">🤖</div>
+          <div class="res-body"><div class="res-title">Android — Producción</div><div class="res-desc">Firebase App Distribution</div></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <a class="res-row" href="https://appdistribution.firebase.dev/i/de1b69f445f6acdb" target="_blank">
+          <div class="res-icon">🤖</div>
+          <div class="res-body"><div class="res-title">Android — Desarrollo</div><div class="res-desc">Firebase App Distribution</div></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <a class="res-row" href="https://testflight.apple.com/join/gd451S6r" target="_blank">
+          <div class="res-icon">🍎</div>
+          <div class="res-body"><div class="res-title">iOS — Beta Externos</div><div class="res-desc">TestFlight</div></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <a class="res-row" href="https://appdistribution.firebase.dev/i/55f8b5f549f5d150" target="_blank">
+          <div class="res-icon">🍎</div>
+          <div class="res-body"><div class="res-title">iOS — Desarrollo</div><div class="res-desc">Firebase App Distribution</div></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <div class="i-card" style="margin-top:4px">
+          <div class="i-card-title">🍎 iOS — Beta Internos</div>
+          <p>Necesitás una cuenta de Apple con tu email @draftea.com. Contactá a <strong style="color:var(--ac3)">@Andres Paez</strong> o <strong style="color:var(--ac3)">@Lucho</strong> por Slack para que te den acceso a la organización.</p>
+        </div>
+
+        <div class="sect-label" style="margin-top:8px">📊 Métricas — Company Wide</div>
+        <a class="res-row" href="https://app.hex.tech/4144b4ef-8a94-4da2-854e-cce1a2abfc9a/app/Last-5-Weeks---Company-Dashboard-02zddqePEVzkWl5CZeL10u/latest" target="_blank">
+          <div class="res-icon">📈</div>
+          <div class="res-body"><div class="res-title">Last 5 Weeks</div><div class="res-desc">Dashboard semanal · Hex</div></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <a class="res-row" href="https://app.hex.tech/4144b4ef-8a94-4da2-854e-cce1a2abfc9a/app/Last-13-weeks---Company-Dashboard-02zbFvyyPVUSSntQrd2bgN/latest" target="_blank">
+          <div class="res-icon">📈</div>
+          <div class="res-body"><div class="res-title">Last 13 Weeks</div><div class="res-desc">Dashboard trimestral · Hex</div></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <a class="res-row" href="https://app.hex.tech/4144b4ef-8a94-4da2-854e-cce1a2abfc9a/app/Last-14-Months---Company-Dashboard-02zhaD6LIHful2xGaHxGNi/latest" target="_blank">
+          <div class="res-icon">📈</div>
+          <div class="res-body"><div class="res-title">Last 14 Months</div><div class="res-desc">Dashboard anual · Hex</div></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <a class="res-row" href="https://app.hex.tech/4144b4ef-8a94-4da2-854e-cce1a2abfc9a/app/Unit-Economics---Monthly-02zq95Qj9f4HHWTiig223h/latest" target="_blank">
+          <div class="res-icon">💹</div>
+          <div class="res-body"><div class="res-title">Unit Economics Monthly</div><div class="res-desc">Economía unitaria mensual · Hex</div></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <a class="res-row" href="https://app.hex.tech/4144b4ef-8a94-4da2-854e-cce1a2abfc9a/app/2025-Actuals-vs-Targets-02zm8TrUXwRUPgWUao7D0z/latest" target="_blank">
+          <div class="res-icon">🎯</div>
+          <div class="res-body"><div class="res-title">Actual vs Target</div><div class="res-desc">Real vs objetivo 2025 · Hex</div></div>
+          <div class="res-arrow">→</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- HERRAMIENTAS -->
+    <div class="ipage" id="ipage-herramientas">
+      <div class="isection">
+        <div class="page-eyebrow">Recursos</div>
+        <div class="spage-title">Herramientas</div>
+        <p style="font-size:15px;color:var(--tx2);margin-bottom:32px;line-height:1.7;max-width:680px">El stack que usamos en el día a día en Draftea.</p>
+        <div class="sect-label">Comunicación</div>
+        <a class="res-row" href="https://slack.com" target="_blank"><div class="res-icon">💬</div><div class="res-body"><div class="res-title">Slack</div><div class="res-desc">Comunicación principal del equipo</div></div><div class="res-arrow">→</div></a>
+        <a class="res-row" href="https://meet.google.com" target="_blank"><div class="res-icon">📹</div><div class="res-body"><div class="res-title">Google Meet</div><div class="res-desc">Videollamadas y reuniones de equipo</div></div><div class="res-arrow">→</div></a>
+        <a class="res-row" href="https://mail.google.com" target="_blank"><div class="res-icon">📧</div><div class="res-body"><div class="res-title">Gmail</div><div class="res-desc">Email corporativo @draftea.com y @pitaco.com</div></div><div class="res-arrow">→</div></a>
+        <div class="sect-label">Gestión &amp; Documentación</div>
+        <a class="res-row" href="https://miro.com" target="_blank"><div class="res-icon">🗺️</div><div class="res-body"><div class="res-title">Miro</div><div class="res-desc">Pizarras colaborativas, org charts y diagramas</div></div><div class="res-arrow">→</div></a>
+        <a class="res-row" href="https://linear.app" target="_blank"><div class="res-icon">🎯</div><div class="res-body"><div class="res-title">Linear</div><div class="res-desc">Gestión de tareas para Engineering y Product</div></div><div class="res-arrow">→</div></a>
+        <a class="res-row" href="https://hex.tech" target="_blank"><div class="res-icon">📊</div><div class="res-body"><div class="res-title">Hex</div><div class="res-desc">Analytics, dashboards y reportes de datos</div></div><div class="res-arrow">→</div></a>
+        <div class="sect-label">People</div>
+        <a class="res-row" href="https://sesamehr.com" target="_blank"><div class="res-icon">🌱</div><div class="res-body"><div class="res-title">SesameHR</div><div class="res-desc">Vacaciones, asistencia y documentos laborales</div></div><div class="res-arrow">→</div></a>
+        <a class="res-row" href="https://peoplebox.ai" target="_blank"><div class="res-icon">📊</div><div class="res-body"><div class="res-title">Peoplebox</div><div class="res-desc">Performance, OKRs y encuestas de engagement</div></div><div class="res-arrow">→</div></a>
+        <div class="res-row" style="border-color:rgba(124,58,237,.25);cursor:pointer" onclick="openHRIS()"><div class="res-icon" style="background:rgba(124,58,237,.3)">🔐</div><div class="res-body"><div class="res-title">People Hub</div><div class="res-desc">Perfiles, compensación, vacaciones y performance</div></div><div class="res-arrow">→</div></div>
+      </div>
+    </div>
+
+    <!-- BRANDING -->
+    <div class="ipage" id="ipage-branding">
+      <div class="isection">
+        <div class="page-eyebrow">Recursos</div>
+        <div class="spage-title">Branding &amp; Redes</div>
+        <p style="font-size:15px;color:var(--tx2);margin-bottom:32px;line-height:1.7;max-width:680px">Identidad visual y presencia de Draftea en redes sociales.</p>
+        <div class="sect-label">Logos &amp; Assets</div>
+        <a class="res-row" href="https://drive.google.com/drive/u/0/folders/1NfwStgoh68W-JEfvsoHQouont4dKB3T6" target="_blank">
+          <div class="res-icon">🎨</div>
+          <div class="res-body"><div class="res-title">Logos Draftea</div><div class="res-desc">Google Drive · Logos, íconos y assets de marca</div></div>
+          <div class="res-arrow">→</div>
+        </a>
+        <div class="sect-label">Redes sociales</div>
+        <a class="res-row" href="https://instagram.com/draftea" target="_blank"><div class="res-icon">📸</div><div class="res-body"><div class="res-title">Instagram</div><div class="res-desc">@draftea</div></div><div class="res-arrow">→</div></a>
+        <a class="res-row" href="https://twitter.com/draftea" target="_blank"><div class="res-icon">🐦</div><div class="res-body"><div class="res-title">Twitter / X</div><div class="res-desc">@draftea</div></div><div class="res-arrow">→</div></a>
+        <a class="res-row" href="https://linkedin.com/company/draftea" target="_blank"><div class="res-icon">💼</div><div class="res-body"><div class="res-title">LinkedIn</div><div class="res-desc">Draftea · Company page</div></div><div class="res-arrow">→</div></a>
+      </div>
+    </div>
+
+
+    </div><!-- /intranet-main -->
+</div><!-- /intranetWrap -->
+
+<!-- ══ HRIS OVERLAY ══════════════════════════════════════ -->
+<div class="hris-overlay" id="hrisOverlay">
+  <div class="hris-topbar">
+    <button class="hris-back-btn" onclick="closeHRIS()">← Volver al Hub</button>
+    <div>
+      <div class="hris-topbar-label">🔐 People Hub</div>
+      <div class="hris-topbar-sub">Sistema de RRHH · Draftea + Pitaco</div>
+    </div>
+  </div>
+  <div class="hris-inner">
+    <div id="loginScreen" style="position:absolute;inset:0;z-index:9999;background:var(--sidebar);display:flex;align-items:center;justify-content:center;background-image:radial-gradient(ellipse at 30% 60%,rgba(109,40,217,0.35) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(139,92,246,0.15) 0%,transparent 50%)">
+      <div class="login-card">
+        <div class="login-logo">
+          <div class="login-logomark">D</div>
+          <div><div class="login-brand">Draftea People Hub</div></div>
+        </div>
+        <h1 class="login-title">Acceso RRHH</h1>
+        <p class="login-sub">Ingresa con tu cuenta corporativa</p>
+        <div id="loginError" class="login-error hidden"></div>
+        <div class="lf-group"><label>Email</label><input type="email" id="loginEmail" placeholder="tu@draftea.com" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+        <div class="lf-group"><label>Contraseña</label><input type="password" id="loginPwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+        <button class="login-btn" onclick="doLogin()">Ingresar →</button>
+        <div class="login-demo">
+          <strong>👤 Cuentas demo</strong>
+          Admin: admin@draftea.com / admin123<br/>
+          Manager: joe@draftea.com / manager123<br/>
+          Manager Pitaco: rodrigo@pitaco.com / manager123<br/>
+          Empleado: franco@draftea.com / emp123
+        </div>
+      </div>
+    </div>
+    <div id="appWrap" class="hidden" style="display:flex;width:100%;height:100%">
+      <div class="sidebar">
+        <div class="sb-header"><div class="sb-logo"><div class="sb-logomark">D</div><div class="sb-brand">People Hub<small>Draftea + Pitaco</small></div></div></div>
+        <div class="sb-user"><div class="sb-avatar" id="sbAvatar"></div><div><div class="sb-uname" id="sbName"></div><div class="sb-role" id="sbRole"></div></div></div>
+        <div class="sb-nav" id="sidebarNav"></div>
+        <div class="sb-footer"><button class="sb-logout" onclick="doLogout()">← Cerrar sesión</button></div>
+      </div>
+      <div class="main" id="mainContent"></div>
+    </div>
+  </div>
+</div>
+
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer"></div>
+<div id="toast" class="toast hidden"></div>
+
+<script>
+// ── INTRANET NAV ─────────────────────────────────────────────
+var TITLES = {
+  worldcup:'World Cup',intro:'Intro & Producto',proposito:'Propósito',
+  principios:'Principios',organizacion:'Organización',feedback:'Feedback & 1:1',
+  sesame:'SesameHR',beneficios:'Beneficios',contacto:'Contacto People',
+  app:'Nuestra App',herramientas:'Herramientas',branding:'Branding & Redes'
+};
+function iNav(page, el) {
+  document.querySelectorAll('.ipage').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.inav-item').forEach(function(i){ i.classList.remove('active'); });
+  var target = document.getElementById('ipage-' + page);
+  if (target) target.classList.add('active');
+  var navEl = el || document.getElementById('inav-' + page);
+  if (navEl) navEl.classList.add('active');
+  document.getElementById('itopbarTitle').textContent = TITLES[page] || page;
+}
+function openHRIS() { document.getElementById('hrisOverlay').classList.add('open'); }
+function closeHRIS() { document.getElementById('hrisOverlay').classList.remove('open'); }
+async function doLogout() {
+  await sbSignOut();
+  currentUser = null; currentEmp = null;
+  document.getElementById('loginScreen').style.display = 'flex';
+  var app = document.getElementById('appWrap');
+  app.classList.add('hidden'); app.style.display = 'none';
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPwd').value = '';
+}
+
+// ── INTRANET NAVIGATION ──────────────────────────────────────
+function iNav(page, el) {
+  document.querySelectorAll('.ipage').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.inav-item').forEach(function(i){ i.classList.remove('active'); });
+  var target = document.getElementById('ipage-' + page);
+  if (target) target.classList.add('active');
+  if (el) el.classList.add('active');
+  else {
+    document.querySelectorAll('.inav-item').forEach(function(i){
+      if (i.getAttribute('onclick') && i.getAttribute('onclick').includes("'" + page + "'")) i.classList.add('active');
+    });
+  }
+  var titles = {
+    home:'Home', proposito:'Propósito', principios:'Principios', organizacion:'Organización',
+    feedback:'Feedback & 1:1', sesame:'SesameHR', beneficios:'Beneficios',
+    contacto:'Contacto People', app:'Nuestra App', herramientas:'Herramientas', branding:'Branding'
+  };
+  document.getElementById('itopbarTitle').textContent = titles[page] || page;
+}
+
+// ── HRIS OPEN/CLOSE ─────────────────────────────────────────
+function openHRIS() {
+  document.getElementById('hrisOverlay').classList.add('open');
+}
+function closeHRIS() {
+  document.getElementById('hrisOverlay').classList.remove('open');
+}
+
+// ── OVERRIDE doLogout to go back to intranet ────────────────
+function doLogout() {
+  currentUser = null; currentEmp = null;
+  var ls = document.getElementById('loginScreen');
+  ls.style.display = 'flex';
+  var app = document.getElementById('appWrap');
+  app.classList.add('hidden');
+  app.style.display = 'none';
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPwd').value = '';
+}
+
+// ── OVERRIDE doLogin to hide login screen inside overlay ────
+// (the existing doLogin from HRIS JS will handle auth,
+//  we just need appWrap to fill the hris-inner area)
+
+
+// ============================================================
+// CONFIG
+// ============================================================
+var SLACK_WEBHOOK = 'https://hooks.slack.com/services/TU/WEBHOOK/URL';
+
+// ============================================================
+// SUPABASE CONFIG
+// ============================================================
+var SB_URL = 'https://tyfahsafccqirvdmdmmm.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5ZmFoc2FmY2NxaXJ2ZG1kbW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NzI5NzEsImV4cCI6MjA5MjM0ODk3MX0.Vzl9Bk8fwIRi15xbWnYSO8xpj_fEaAGXDEEjZXWnmlQ';
+
+// ── Supabase helpers ──────────────────────────────────────
+var sbSession = null; // { access_token, user }
+
+async function sbSignIn(email, password) {
+  var res = await fetch(SB_URL + '/auth/v1/token?grant_type=password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY },
+    body: JSON.stringify({ email: email, password: password })
+  });
+  return res.json();
+}
+
+async function sbSignOut() {
+  if (!sbSession) return;
+  await fetch(SB_URL + '/auth/v1/logout', {
+    method: 'POST',
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + sbSession.access_token }
+  });
+  sbSession = null;
+}
+
+async function sbQuery(table, params, token) {
+  var headers = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + (token || SB_KEY) };
+  var res = await fetch(SB_URL + '/rest/v1/' + table + '?' + (params||''), { headers: headers });
+  if (!res.ok) return [];
+  return res.json();
+}
+
+async function sbInsert(table, data, token) {
+  var res = await fetch(SB_URL + '/rest/v1/' + table, {
+    method: 'POST',
+    headers: {
+      'apikey': SB_KEY,
+      'Authorization': 'Bearer ' + (token || SB_KEY),
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    },
+    body: JSON.stringify(data)
+  });
+  return res.json();
+}
+
+async function sbUpdate(table, filter, data, token) {
+  var res = await fetch(SB_URL + '/rest/v1/' + table + '?' + filter, {
+    method: 'PATCH',
+    headers: {
+      'apikey': SB_KEY,
+      'Authorization': 'Bearer ' + (token || SB_KEY),
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    },
+    body: JSON.stringify(data)
+  });
+  return res.json();
+}
+
+async function sbGetProfile(token) {
+  var res = await fetch(SB_URL + '/rest/v1/user_profiles?select=*', {
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
+  });
+  var rows = await res.json();
+  return rows[0] || null;
+}
+
+// ============================================================
+// USERS & AUTH
+// ============================================================
+var USERS = [
+  { id:'u_admin',   email:'admin@draftea.com',    pwd:'admin123',   role:'admin',    name:'Camila Torres',      empId:'D_cami' },
+  { id:'u_joe',     email:'joe@draftea.com',       pwd:'manager123', role:'manager',  name:'Joe Cohen',          empId:'D_joe'  },
+  { id:'u_rodrigo', email:'rodrigo@pitaco.com',    pwd:'manager123', role:'manager',  name:'Rodrigo Barbosa',    empId:'R_rodrigo' },
+  { id:'u_paola',   email:'paola@draftea.com',     pwd:'manager123', role:'manager',  name:'Paola Villagomez',   empId:'D_paola' },
+  { id:'u_hugo',    email:'hugo@draftea.com',      pwd:'manager123', role:'manager',  name:'Hugo Salinas',       empId:'D_hugo' },
+  { id:'u_franco',  email:'franco@draftea.com',    pwd:'emp123',     role:'employee', name:'Franco Calvo',       empId:'D001'   },
+  { id:'u_simon',   email:'simon@draftea.com',     pwd:'emp123',     role:'employee', name:'Simón Bancalari',    empId:'D006'   },
+  { id:'u_igor',    email:'igor@pitaco.com',        pwd:'emp123',     role:'employee', name:'Igor Michels',       empId:'R001'   },
+];
+
+var currentUser = null;
+var currentEmp  = null;
+
+async function doLogin() {
+  var email = document.getElementById('loginEmail').value.trim();
+  var pwd   = document.getElementById('loginPwd').value;
+  var errEl = document.getElementById('loginError');
+  var btn   = document.querySelector('.login-btn');
+  btn.textContent = 'Ingresando...'; btn.disabled = true;
+
+  function showApp() {
+    errEl.classList.add('hidden');
+    document.getElementById('loginScreen').style.display = 'none';
+    var app = document.getElementById('appWrap');
+    app.classList.remove('hidden'); app.style.display = 'flex';
+    btn.textContent = 'Ingresar →'; btn.disabled = false;
+    buildSidebar();
+    navigate(currentUser.role === 'employee' ? 'my-profile' : 'dashboard');
+  }
+
+  function showError(msg) {
+    errEl.textContent = msg; errEl.classList.remove('hidden');
+    btn.textContent = 'Ingresar →'; btn.disabled = false;
+  }
+
+  try {
+    var data = await sbSignIn(email, pwd);
+    if (data.access_token) {
+      sbSession = data;
+      var profile = await sbGetProfile(data.access_token);
+      if (!profile) { showError('Sin perfil asignado. Contactá a People.'); return; }
+
+      var empData = await sbQuery('employees', 'id=eq.' + profile.employee_id + '&select=*', data.access_token);
+      currentEmp = empData[0] || null;
+      currentUser = { name: currentEmp ? currentEmp.name : email, role: profile.role, empId: profile.employee_id, email: email };
+
+      var allEmps = await sbQuery('employees', 'select=*', data.access_token);
+      if (allEmps && allEmps.length) EMPLOYEES = allEmps;
+
+      var vacs = await sbQuery('vacations', 'select=*&order=created_at.desc', data.access_token);
+      if (vacs && vacs.length) {
+        VACATIONS = vacs.map(function(v) {
+          var emp = (allEmps||[]).find(function(e){ return e.id === v.employee_id; });
+          return { id:v.id, employee_id:v.employee_id, employee_name:emp?emp.name:'',
+            manager_id:v.manager_id, start:v.start_date, end:v.end_date,
+            days:v.days, reason:v.reason, status:v.status,
+            company:emp?emp.company:'', created:v.created_at?v.created_at.split('T')[0]:'' };
+        });
+      }
+      showApp(); return;
+    }
+  } catch(err) { console.log('Supabase error:', err); }
+
+  // Fallback demo
+  var demoUser = USERS.find(function(u){ return u.email === email && u.pwd === pwd; });
+  if (!demoUser) { showError('Credenciales incorrectas.'); return; }
+  currentUser = demoUser;
+  currentEmp  = EMPLOYEES.find(function(e){ return e.id === demoUser.empId; });
+  showApp();
+}
+
+function doLogout() {
+  currentUser = null; currentEmp = null;
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('appWrap').classList.add('hidden');
+  document.getElementById('appWrap').style.display = 'none';
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPwd').value = '';
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+var currentPage = '';
+
+var NAV_ADMIN = [
+  { key:'dashboard',   label:'Dashboard',    icon:'◎',  section:'Principal' },
+  { key:'employees',   label:'Empleados',    icon:'👥', section:'' },
+  { key:'compensation',label:'Compensación', icon:'💰', section:'' },
+  { key:'equipment',   label:'Equipamiento', icon:'💻', section:'Activos' },
+  { key:'stock',       label:'Stock',        icon:'📦', section:'' },
+  { key:'performance', label:'Performance',  icon:'📊', section:'Analytics' },
+  { key:'churn',       label:'Rotación',     icon:'🔄', section:'' },
+  { key:'vacations',   label:'Vacaciones',   icon:'🌴', section:'Gestión', badge:true },
+  { key:'holidays',    label:'Feriados LATAM',icon:'📅', section:'' },
+  { key:'raises',      label:'Gestor Aumentos',icon:'📈', section:'Gestión' },
+  { key:'orgchart',    label:'Org Chart',     icon:'🏢', section:'' },
+  { key:'anniversaries',label:'Aniversarios',  icon:'🎂', section:'' },
+];
+var NAV_MANAGER = [
+  { key:'dashboard',   label:'Dashboard',    icon:'◎',  section:'Principal' },
+  { key:'team',        label:'Mi Equipo',    icon:'👥', section:'' },
+  { key:'vacations',   label:'Vacaciones',   icon:'🌴', section:'Gestión', badge:true },
+  { key:'holidays',    label:'Feriados LATAM',icon:'📅', section:'' },
+  { key:'raises',      label:'Solicitar Aumento',icon:'📈', section:'Gestión' },
+  { key:'orgchart',    label:'Org Chart',     icon:'🏢', section:'' },
+  { key:'anniversaries',label:'Aniversarios',  icon:'🎂', section:'' },
+];
+var NAV_EMPLOYEE = [
+  { key:'my-profile',   label:'Mi Perfil',     icon:'👤', section:'Mi Espacio' },
+  { key:'my-vacations', label:'Mis Vacaciones', icon:'🌴', section:'' },
+  { key:'holidays',     label:'Feriados LATAM', icon:'📅', section:'' },
+  { key:'orgchart',     label:'Org Chart',      icon:'🏢', section:'' },
+  { key:'anniversaries', label:'Aniversarios',   icon:'🎂', section:'' },
+];
+
+function buildSidebar() {
+  var role = currentUser.role;
+  document.getElementById('sbAvatar').textContent = initials(currentUser.name);
+  document.getElementById('sbName').textContent   = currentUser.name;
+  document.getElementById('sbRole').textContent   = role === 'admin' ? 'Admin' : role === 'manager' ? 'Manager' : 'Empleado';
+  var navMap = role === 'admin' ? NAV_ADMIN : role === 'manager' ? NAV_MANAGER : NAV_EMPLOYEE;
+  var html = '';
+  var lastSection = '';
+  navMap.forEach(function(item) {
+    if (item.section && item.section !== lastSection) {
+      html += '<div class="sb-section">' + item.section + '</div>';
+      lastSection = item.section;
+    }
+    var pending = item.badge ? getPendingCount() : 0;
+    var badge   = (item.badge && pending > 0) ? '<span class="nav-badge">' + pending + '</span>' : '';
+    html += '<div class="nav-item" id="nav_' + item.key + '" onclick="navigate(\'' + item.key + '\')">' +
+            '<span class="ni-icon">' + item.icon + '</span><span>' + item.label + '</span>' + badge + '</div>';
+  });
+  document.getElementById('sidebarNav').innerHTML = html;
+}
+
+function navigate(page) {
+  currentPage = page;
+  document.querySelectorAll('.nav-item').forEach(function(el){ el.classList.remove('active'); });
+  var active = document.getElementById('nav_' + page);
+  if (active) active.classList.add('active');
+  var main = document.getElementById('mainContent');
+  if (page === 'dashboard')     { renderDashboard(main); }
+  else if (page === 'employees'){ renderEmployees(main); }
+  else if (page === 'compensation'){ renderCompensation(main); }
+  else if (page === 'equipment'){ renderEquipment(main); }
+  else if (page === 'stock')    { renderStock(main); }
+  else if (page === 'performance'){ renderPerformance(main); }
+  else if (page === 'churn')    { renderChurn(main); }
+  else if (page === 'vacations'){ renderVacations(main); }
+  else if (page === 'team')     { renderTeam(main); }
+  else if (page === 'my-profile'){ renderMyProfile(main); }
+  else if (page === 'my-vacations'){ renderMyVacations(main); }
+  else if (page === 'holidays'){ renderHolidays(main); }
+  else if (page === 'raises'){ renderRaises(main); }
+  else if (page === 'orgchart'){ renderOrgChart(main); }
+  else if (page === 'anniversaries'){ renderAnniversaries(main); }
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast ' + (type||'success');
+  t.classList.remove('hidden');
+  setTimeout(function(){ t.classList.add('hidden'); }, 3500);
+}
+
+// ============================================================
+// DRAWER
+// ============================================================
+function openDrawer(html) {
+  document.getElementById('drawer').innerHTML = html;
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('open');
+}
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('open');
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function initials(name) {
+  return (name||'').split(' ').slice(0,2).map(function(w){ return w[0]; }).join('').toUpperCase();
+}
+function fmtDate(d) {
+  if (!d) return '—';
+  var parts = d.split('-');
+  if (parts.length === 3) return parts[2] + '/' + parts[1] + '/' + parts[0];
+  return d;
+}
+function fmtNum(n) { return Number(n).toLocaleString('es-CL'); }
+function avgPerf(e) {
+  if (!e.perf) return null;
+  var scores = [e.perf.manager_score, e.perf.peer_avg, e.perf.direct_report_avg].filter(function(x){ return x != null && x > 0; });
+  if (!scores.length) return null;
+  return (scores.reduce(function(a,b){ return a+b; }, 0) / scores.length).toFixed(1);
+}
+function perfTier(avg) {
+  if (!avg) return { label:'Sin datos', cls:'b-gray' };
+  if (avg >= 8.5) return { label:'Top Performer', cls:'b-green' };
+  if (avg >= 7)   return { label:'High Performer', cls:'b-purple' };
+  if (avg >= 5.5) return { label:'Solid Contributor', cls:'b-blue' };
+  if (avg >= 4)   return { label:'Concern', cls:'b-orange' };
+  return { label:'At Risk', cls:'b-red' };
+}
+function coTag(co) { return '<span class="badge ' + (co==='Draftea'?'b-purple':'b-blue') + '">' + co + '</span>'; }
+
+// Vacation helpers
+function getPendingCount() {
+  var role = currentUser ? currentUser.role : '';
+  return VACATIONS.filter(function(v){
+    if (v.status !== 'pending') return false;
+    if (role === 'admin') return true;
+    if (role === 'manager') {
+      var myReports = EMPLOYEES.filter(function(e){ return e.manager === currentUser.name || e.manager_id === currentEmp.id; });
+      return myReports.some(function(r){ return r.name === v.employee_name; });
+    }
+    return false;
+  }).length;
+}
+
+async function sendSlack(msg) {
+  try {
+    await fetch(SLACK_WEBHOOK, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text:msg}) });
+  } catch(e) { console.log('Slack:', e); }
+}
+
+// ============================================================
+// VACATIONS DATA
+// ============================================================
+var VACATIONS = [
+  { id:'v1', employee_name:'Franco Calvo', employee_id:'D001', manager_name:'Joe Cohen', company:'Draftea', start:'2025-02-10', end:'2025-02-14', days:5, reason:'Vacaciones anuales', status:'approved', created:'2025-01-15' },
+  { id:'v2', employee_name:'Igor Michels', employee_id:'R001', manager_name:'Rodrigo Barbosa', company:'Pitaco', start:'2025-03-03', end:'2025-03-07', days:5, reason:'Viaje familiar', status:'pending', created:'2025-02-20' },
+  { id:'v3', employee_name:'Simón Bancalari', employee_id:'D006', manager_name:'Joe Cohen', company:'Draftea', start:'2025-04-21', end:'2025-04-25', days:5, reason:'Semana Santa', status:'pending', created:'2025-04-01' },
+  { id:'v4', employee_name:'Vanessa Berwanger', employee_id:'R002', manager_name:'Rodrigo Barbosa', company:'Pitaco', start:'2024-12-23', end:'2024-12-27', days:3, reason:'Fiestas', status:'approved', created:'2024-11-30' },
+];
+
+// ============================================================
+// EMPLOYEE DATA
+// ============================================================
+var EMPLOYEES = [
+  { id:'D_cami', birthday:'1992-07-14', name:'Camila Torres', company:'Draftea', area:'People', role:'HRBP', level:'Senior', country:'Chile', manager:'Paola Villagomez', manager_id:'D_paola', start:'2023-03-01', email:'cami@draftea.com', phone:'+56 9 8765 4321', emergency:'—', currency:'USD', salary:4400, totalCost:4400, commission:'',
+    salaryHistory:[{date:'2023-03-01',amount:3800,currency:'USD',reason:'Ingreso'},{date:'2024-06-01',amount:4400,currency:'USD',pct:15.8,reason:'Ajuste anual'}],
+    equipment:[{model:'MacBook Pro 14',brand:'Apple',serial:'MBP-001',specs:'M3 / 16GB / 512GB'}],
+    perf:{manager_score:8.5,peer_avg:8.2,direct_report_avg:null,feedback:'Excelente gestión de procesos de RRHH. Alta orientación al resultado y comunicación asertiva.'},
+    vacDays:15, vacUsed:3 },
+
+  { id:'D_joe', birthday:'1985-03-22', name:'Joe Cohen', company:'Draftea', area:'Engineering', role:'CTO/CPO', level:'Executive', country:'México', manager:'Alán Jaime Misrahi', manager_id:null, start:'2022-06-01', email:'joe@draftea.com', phone:'+52 55 1234 5678', emergency:'—', currency:'USD', salary:12000, totalCost:12000, commission:'',
+    salaryHistory:[{date:'2022-06-01',amount:10000,currency:'USD',reason:'Ingreso'},{date:'2023-06-01',amount:12000,currency:'USD',pct:20,reason:'Ajuste anual'}],
+    equipment:[{model:'MacBook Pro 16',brand:'Apple',serial:'MBP-007',specs:'M3 Max / 64GB / 1TB'}],
+    perf:{manager_score:9.2,peer_avg:8.8,direct_report_avg:8.5,feedback:'Liderazgo técnico excepcional. Visión estratégica clara y gran capacidad de ejecución.'},
+    vacDays:20, vacUsed:5 },
+
+  { id:'D_paola', birthday:'1990-11-05', name:'Paola Villagomez', company:'Draftea', area:'People', role:'Head of People', level:'Head', country:'México', manager:'Alán Jaime Misrahi', manager_id:null, start:'2022-04-01', email:'paola@draftea.com', phone:'+52 55 9876 5432', emergency:'—', currency:'MXN', salary:135000, totalCost:135000, commission:'',
+    salaryHistory:[{date:'2022-04-01',amount:110000,currency:'MXN',reason:'Ingreso'},{date:'2023-04-01',amount:125000,currency:'MXN',pct:13.6,reason:'Ajuste'},{date:'2024-04-01',amount:135000,currency:'MXN',pct:8,reason:'Ajuste anual'}],
+    equipment:[{model:'MacBook Pro 14',brand:'Apple',serial:'MBP-002',specs:'M3 / 16GB / 512GB'}],
+    perf:{manager_score:9.0,peer_avg:8.7,direct_report_avg:8.9,feedback:'Excelente liderazgo del área de People. Alta empatía y orientación a resultados.'},
+    vacDays:20, vacUsed:8 },
+
+  { id:'D_hugo', birthday:'1983-09-18', name:'Hugo Salinas', company:'Draftea', area:'Trading', role:'Head of Trading', level:'Head', country:'México', manager:'Alán Jaime Misrahi', manager_id:null, start:'2022-07-01', email:'hugo@draftea.com', phone:'+52 55 4321 8765', emergency:'—', currency:'MXN', salary:300000, totalCost:300000, commission:'',
+    salaryHistory:[{date:'2022-07-01',amount:250000,currency:'MXN',reason:'Ingreso'},{date:'2024-01-01',amount:300000,currency:'MXN',pct:20,reason:'Ajuste + performance'}],
+    equipment:[{model:'MacBook Pro 14',brand:'Apple',serial:'MBP-003',specs:'M2 Pro / 32GB / 512GB'}],
+    perf:{manager_score:8.8,peer_avg:8.5,direct_report_avg:8.2,feedback:'Dominio técnico del negocio. Toma de decisiones rápida y fundamentada.'},
+    vacDays:20, vacUsed:10 },
+
+  { id:'D001', birthday:'1994-10-10', name:'Franco Calvo', company:'Draftea', area:'Engineering', role:'Software Engineer', level:'Senior', country:'Argentina', manager:'Joe Cohen', manager_id:'D_joe', start:'2022-10-10', email:'franco@draftea.com', phone:'+54 11 1234 5678', emergency:'María Calvo — +54 11 8765 4321', currency:'USD', salary:9500, totalCost:9500, commission:'',
+    salaryHistory:[{date:'2022-10-10',amount:7800,currency:'USD',reason:'Ingreso'},{date:'2023-09-01',amount:8500,currency:'USD',pct:10.3,reason:'Ajuste'},{date:'2025-01-15',amount:9500,currency:'USD',pct:11.8,reason:'Performance'}],
+    equipment:[{model:'MacBook Pro 14',brand:'Apple',serial:'MBP-010',specs:'M3 / 16GB / 512GB'}],
+    perf:{manager_score:8.7,peer_avg:8.4,direct_report_avg:null,feedback:'Excelente calidad de código. Referente técnico del equipo de Backend.'},
+    vacDays:15, vacUsed:5 },
+
+  { id:'D006', birthday:'1993-01-20', name:'Simón Bancalari', company:'Draftea', area:'Marketing', role:'Head of Performance Mkt', level:'Lead', country:'Chile', manager:'Raúl Colás', manager_id:null, start:'2023-01-09', email:'simon@draftea.com', phone:'+56 9 1234 5678', emergency:'—', currency:'USD', salary:11000, totalCost:11000, commission:'',
+    salaryHistory:[{date:'2023-01-09',amount:9000,currency:'USD',reason:'Ingreso'},{date:'2023-09-01',amount:9500,currency:'USD',pct:5.6,reason:'Ajuste'},{date:'2024-11-01',amount:11000,currency:'USD',pct:15.8,reason:'Promoción'}],
+    equipment:[{model:'MacBook Pro 14',brand:'Apple',serial:'MBP-020',specs:'M3 / 16GB / 1TB'}],
+    perf:{manager_score:8.9,peer_avg:8.3,direct_report_avg:7.8,feedback:'Gran capacidad estratégica en performance marketing. Lidera con resultados claros y medibles.'},
+    vacDays:15, vacUsed:7 },
+
+  { id:'D007', birthday:'1988-06-30', name:'Andrés Poveda', company:'Draftea', area:'Engineering', role:'Engineering Manager', level:'Lead', country:'Colombia', manager:'Joe Cohen', manager_id:'D_joe', start:'2022-09-01', email:'andres@draftea.com', phone:'+57 310 123 4567', emergency:'—', currency:'USD', salary:10500, totalCost:10500, commission:'',
+    salaryHistory:[{date:'2022-09-01',amount:8500,currency:'USD',reason:'Ingreso'},{date:'2024-02-10',amount:10500,currency:'USD',pct:23.5,reason:'Ajuste + performance'}],
+    equipment:[{model:'MacBook Pro 16',brand:'Apple',serial:'MBP-021',specs:'M3 Max / 32GB / 512GB'}],
+    perf:{manager_score:8.5,peer_avg:8.1,direct_report_avg:8.3,feedback:'Sólido liderazgo de equipo. Buena capacidad para remover bloqueos y escalar problemas.'},
+    vacDays:15, vacUsed:6 },
+
+  { id:'D013', birthday:'1996-03-15', name:'Eduardo Aguilar', company:'Draftea', area:'Engineering', role:'Software Engineer', level:'Senior', country:'México', manager:'Joe Cohen', manager_id:'D_joe', start:'2023-03-15', email:'eduardo@draftea.com', phone:'+52 55 8765 4321', emergency:'—', currency:'USD', salary:9800, totalCost:9800, commission:'',
+    salaryHistory:[{date:'2023-03-15',amount:8000,currency:'USD',reason:'Ingreso'},{date:'2025-01-20',amount:9800,currency:'USD',pct:22.5,reason:'Promoción'}],
+    equipment:[{model:'MacBook Pro 14',brand:'Apple',serial:'MBP-025',specs:'M3 / 16GB / 512GB'}],
+    perf:{manager_score:8.6,peer_avg:8.0,direct_report_avg:null,feedback:'Alta calidad técnica. Propone mejoras de arquitectura y las ejecuta con autonomía.'},
+    vacDays:15, vacUsed:4 },
+
+  { id:'D017', birthday:'1997-08-08', name:'Diego Morales', company:'Draftea', area:'Engineering', role:'Software Engineer', level:'Mid', country:'Argentina', manager:'Andrés Poveda', manager_id:'D007', start:'2024-01-08', email:'diego@draftea.com', phone:'+54 11 2345 6789', emergency:'—', currency:'USD', salary:7000, totalCost:7000, commission:'',
+    salaryHistory:[{date:'2024-01-08',amount:6000,currency:'USD',reason:'Ingreso'},{date:'2024-12-01',amount:7000,currency:'USD',pct:16.7,reason:'Ajuste performance'}],
+    equipment:[{model:'MacBook Air M2',brand:'Apple',serial:'MBA-030',specs:'M2 / 8GB / 256GB'}],
+    perf:{manager_score:7.5,peer_avg:7.2,direct_report_avg:null,feedback:'Buen ritmo de entrega. Necesita mejorar documentación y comunicación cross-team.'},
+    vacDays:15, vacUsed:3 },
+
+  { id:'D023', birthday:'1995-07-03', name:'Yisus Hernandez', company:'Draftea', area:'Engineering', role:'DevOps Engineer', level:'Mid', country:'Colombia', manager:'Andrés Poveda', manager_id:'D007', start:'2023-07-03', email:'yisus@draftea.com', phone:'+57 315 456 7890', emergency:'—', currency:'USD', salary:8900, totalCost:8900, commission:'',
+    salaryHistory:[{date:'2023-07-03',amount:7000,currency:'USD',reason:'Ingreso'},{date:'2025-03-01',amount:8900,currency:'USD',pct:27.1,reason:'Ajuste + performance'}],
+    equipment:[{model:'MacBook Pro 14',brand:'Apple',serial:'MBP-031',specs:'M3 / 16GB / 512GB'}],
+    perf:{manager_score:8.3,peer_avg:7.9,direct_report_avg:null,feedback:'Excelente dominio de infraestructura. Implementó mejoras de CI/CD que impactaron a todo el equipo.'},
+    vacDays:15, vacUsed:4 },
+
+  { id:'D_nico', birthday:'1991-02-28', name:'Nicolás Escobar', company:'Draftea', area:'Engineering', role:'Engineering Manager', level:'Lead', country:'Argentina', manager:'Joe Cohen', manager_id:'D_joe', start:'2023-02-01', email:'nicolas@draftea.com', phone:'+54 11 3456 7890', emergency:'—', currency:'USD', salary:9000, totalCost:9000, commission:'',
+    salaryHistory:[{date:'2023-02-01',amount:7500,currency:'USD',reason:'Ingreso'},{date:'2024-02-01',amount:9000,currency:'USD',pct:20,reason:'Ajuste anual'}],
+    equipment:[{model:'MacBook Pro 14',brand:'Apple',serial:'MBP-032',specs:'M3 / 16GB / 512GB'}],
+    perf:{manager_score:8.0,peer_avg:7.6,direct_report_avg:7.9,feedback:'Buen manager. Mantiene moral del equipo alta y entrega consistente.'},
+    vacDays:15, vacUsed:6 },
+
+  // PITACO EMPLOYEES
+  { id:'R_rodrigo', birthday:'1986-04-12', name:'Rodrigo Barbosa', company:'Pitaco', area:'Operaciones', role:'Head of Operations', level:'Head', country:'Brasil', manager:'Alan (Pitaco CEO)', manager_id:null, start:'2021-04-01', email:'rodrigo@pitaco.com', phone:'+55 11 98765 4321', emergency:'—', currency:'BRL', salary:28000, totalCost:28000, commission:'',
+    salaryHistory:[{date:'2021-04-01',amount:20000,currency:'BRL',reason:'Ingreso'},{date:'2022-04-01',amount:24000,currency:'BRL',pct:20,reason:'Ajuste anual'},{date:'2023-04-01',amount:28000,currency:'BRL',pct:16.7,reason:'Promoción'}],
+    equipment:[{model:'Dell XPS 15',brand:'Dell',serial:'DELL-001',specs:'i9 / 32GB / 1TB'}],
+    perf:{manager_score:9.1,peer_avg:8.7,direct_report_avg:8.4,feedback:'Liderazgo sólido de las operaciones. Excelente capacidad de ejecución y priorización.'},
+    vacDays:30, vacUsed:12 },
+
+  { id:'R001', birthday:'1992-07-01', name:'Igor Michels', company:'Pitaco', area:'Engineering', role:'Tech Lead', level:'Lead', country:'Brasil', manager:'Rodrigo Barbosa', manager_id:'R_rodrigo', start:'2021-07-01', email:'igor@pitaco.com', phone:'+55 21 97654 3210', emergency:'—', currency:'BRL', salary:22000, totalCost:22000, commission:'',
+    salaryHistory:[{date:'2021-07-01',amount:16000,currency:'BRL',reason:'Ingreso'},{date:'2022-07-01',amount:18000,currency:'BRL',pct:12.5,reason:'Ajuste'},{date:'2025-02-15',amount:22000,currency:'BRL',pct:22.2,reason:'Ajuste anual'}],
+    equipment:[{model:'MacBook Pro 14',brand:'Apple',serial:'MBP-R001',specs:'M3 / 16GB / 512GB'}],
+    perf:{manager_score:9.0,peer_avg:8.6,direct_report_avg:8.1,feedback:'Referente técnico del equipo. Excelente mentoría y calidad de código.'},
+    vacDays:30, vacUsed:8 },
+
+  { id:'R002', birthday:'1990-09-15', name:'Vanessa Berwanger', company:'Pitaco', area:'Product', role:'Product Manager', level:'Senior', country:'Brasil', manager:'Rodrigo Barbosa', manager_id:'R_rodrigo', start:'2021-09-15', email:'vanessa@pitaco.com', phone:'+55 51 98765 1234', emergency:'—', currency:'BRL', salary:17500, totalCost:17500, commission:'',
+    salaryHistory:[{date:'2021-09-15',amount:12000,currency:'BRL',reason:'Ingreso'},{date:'2022-09-01',amount:14500,currency:'BRL',pct:20.8,reason:'Ajuste'},{date:'2025-01-25',amount:17500,currency:'BRL',pct:20.7,reason:'Ajuste anual'}],
+    equipment:[{model:'MacBook Air M2',brand:'Apple',serial:'MBA-R002',specs:'M2 / 16GB / 512GB'}],
+    perf:{manager_score:8.8,peer_avg:8.3,direct_report_avg:7.9,feedback:'Excelente visión de producto. Muy buena capacidad para priorizar y comunicar.'},
+    vacDays:30, vacUsed:10 },
+
+  { id:'R007', birthday:'1993-03-20', name:'Victor Russo', company:'Pitaco', area:'Engineering', role:'Software Engineer', level:'Senior', country:'Brasil', manager:'Igor Michels', manager_id:'R001', start:'2022-03-01', email:'victor@pitaco.com', phone:'+55 21 96543 2109', emergency:'—', currency:'BRL', salary:18500, totalCost:18500, commission:'',
+    salaryHistory:[{date:'2022-03-01',amount:13000,currency:'BRL',reason:'Ingreso'},{date:'2023-03-01',amount:15000,currency:'BRL',pct:15.4,reason:'Ajuste'},{date:'2025-01-10',amount:18500,currency:'BRL',pct:23.3,reason:'Promoción'}],
+    equipment:[{model:'MacBook Pro 14',brand:'Apple',serial:'MBP-R007',specs:'M3 / 16GB / 512GB'}],
+    perf:{manager_score:8.6,peer_avg:8.1,direct_report_avg:null,feedback:'Alta productividad. Buena actitud de colaboración con el equipo.'},
+    vacDays:30, vacUsed:7 },
+
+  { id:'R018', birthday:'1988-08-22', name:'Maira Audi', company:'Pitaco', area:'Marketing', role:'Marketing Manager', level:'Senior', country:'Brasil', manager:'Rodrigo Barbosa', manager_id:'R_rodrigo', start:'2022-08-01', email:'maira@pitaco.com', phone:'+55 11 97654 3456', emergency:'—', currency:'BRL', salary:20000, totalCost:20000, commission:'',
+    salaryHistory:[{date:'2022-08-01',amount:15000,currency:'BRL',reason:'Ingreso'},{date:'2023-08-01',amount:17000,currency:'BRL',pct:13.3,reason:'Ajuste'},{date:'2024-10-15',amount:20000,currency:'BRL',pct:17.6,reason:'Promoción'}],
+    equipment:[{model:'MacBook Air M2',brand:'Apple',serial:'MBA-R018',specs:'M2 / 8GB / 256GB'}],
+    perf:{manager_score:8.4,peer_avg:7.9,direct_report_avg:7.6,feedback:'Sólida ejecución de campañas. Mejora continua en análisis de datos.'},
+    vacDays:30, vacUsed:9 },
+
+  { id:'R022', birthday:'1998-04-22', name:'Vitor Vilela', company:'Pitaco', area:'Product', role:'Product Operations', level:'Mid', country:'Brasil', manager:'Vanessa Berwanger', manager_id:'R002', start:'2024-04-22', email:'vitor@pitaco.com', phone:'+55 11 95432 1234', emergency:'—', currency:'BRL', salary:12000, totalCost:12000, commission:'',
+    salaryHistory:[{date:'2024-04-22',amount:12000,currency:'BRL',reason:'Ingreso'}],
+    equipment:[{model:'Dell Inspiron 15',brand:'Dell',serial:'DELL-R022',specs:'i7 / 16GB / 512GB'}],
+    perf:{manager_score:8.2,peer_avg:7.8,direct_report_avg:null,feedback:'Buen primer año. Aprende rápido y aporta ideas frescas al equipo.'},
+    vacDays:30, vacUsed:3 },
+];
+
+// STOCK
+var STOCK = [
+  {model:'MacBook Pro 14 M3',brand:'Apple',qty:4,condition:'Nuevo',assignable:true,location:'CDMX'},
+  {model:'MacBook Air M2',brand:'Apple',qty:2,condition:'Reacondicionado',assignable:true,location:'Buenos Aires'},
+  {model:'MacBook Pro 16 M3',brand:'Apple',qty:1,condition:'Nuevo',assignable:true,location:'CDMX'},
+  {model:'Dell XPS 15',brand:'Dell',qty:2,condition:'Nuevo',assignable:true,location:'São Paulo'},
+  {model:'Monitor LG 27"',brand:'LG',qty:6,condition:'Nuevo',assignable:true,location:'CDMX'},
+  {model:'Teclado Magic Keyboard',brand:'Apple',qty:5,condition:'Nuevo',assignable:true,location:'CDMX'},
+  {model:'Magic Mouse',brand:'Apple',qty:5,condition:'Nuevo',assignable:true,location:'CDMX'},
+];
+
+// CHURN
+var CHURN = [
+  {name:'Pablo Rodríguez',area:'Engineering',role:'Software Engineer',company:'Draftea',start:'2022-03-01',end:'2025-02-28',tenure:36,reason:'Renuncia voluntaria'},
+  {name:'Laura Méndez',area:'Marketing',role:'Growth Analyst',company:'Draftea',start:'2023-01-15',end:'2025-01-31',tenure:24,reason:'Renuncia voluntaria'},
+  {name:'Carlos Fuentes',area:'Finance',role:'Finance Analyst',company:'Draftea',start:'2022-07-01',end:'2025-03-15',tenure:32,reason:'Desvinculación'},
+  {name:'Ana Martínez',area:'Engineering',role:'QA Engineer',company:'Draftea',start:'2023-04-01',end:'2024-12-31',tenure:21,reason:'Renuncia voluntaria'},
+  {name:'Luis Herrera',area:'Engineering',role:'DevOps',company:'Draftea',start:'2022-11-01',end:'2025-01-15',tenure:26,reason:'Desvinculación'},
+  {name:'Mariana Souza',area:'Product',role:'Product Designer',company:'Pitaco',start:'2022-05-01',end:'2025-02-01',tenure:33,reason:'Renuncia voluntaria'},
+  {name:'Felipe Costa',area:'Engineering',role:'Backend Engineer',company:'Pitaco',start:'2023-02-01',end:'2024-11-30',tenure:22,reason:'Renuncia voluntaria'},
+  {name:'Beatriz Lima',area:'R&O/CX',role:'CX Analyst',company:'Pitaco',start:'2022-08-01',end:'2025-01-31',tenure:30,reason:'Renuncia voluntaria'},
+];
+
+// ============================================================
+// RENDER: DASHBOARD
+// ============================================================
+function renderDashboard(el) {
+  var role = currentUser.role;
+  var emps = role === 'admin' ? EMPLOYEES :
+             role === 'manager' ? EMPLOYEES.filter(function(e){ return e.manager === currentUser.name; }) : [];
+  var draftea = emps.filter(function(e){ return e.company==='Draftea'; }).length;
+  var pitaco  = emps.filter(function(e){ return e.company==='Pitaco'; }).length;
+  var pending = VACATIONS.filter(function(v){ return v.status==='pending'; }).length;
+  var avgSalEmp = emps.filter(function(e){ return e.currency==='USD'; });
+  var avgUSD = avgSalEmp.length ? (avgSalEmp.reduce(function(a,e){ return a+e.salary; },0)/avgSalEmp.length).toFixed(0) : '—';
+
+  // Area breakdown
+  var areas = {};
+  emps.forEach(function(e){ areas[e.area] = (areas[e.area]||0)+1; });
+  var areaRows = Object.entries(areas).sort(function(a,b){ return b[1]-a[1]; }).slice(0,6).map(function(kv){
+    var pct = Math.round(kv[1]/emps.length*100);
+    return '<div style="margin-bottom:12px">' +
+      '<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>' + kv[0] + '</span><span style="color:var(--tx2)">' + kv[1] + '</span></div>' +
+      '<div class="prog-wrap"><div class="prog-bar" style="width:' + pct + '%;background:var(--ac)"></div></div></div>';
+  }).join('');
+
+  var pendingCards = VACATIONS.filter(function(v){ return v.status==='pending'; }).map(function(v){
+    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">' +
+      '<div class="avatar">' + initials(v.employee_name) + '</div>' +
+      '<div><div style="font-weight:500;font-size:13px">' + v.employee_name + '</div>' +
+      '<div style="font-size:12px;color:var(--tx2)">' + fmtDate(v.start) + ' → ' + fmtDate(v.end) + ' · ' + v.days + 'd · ' + v.reason + '</div></div>' +
+      '<span class="badge b-gold ml-a">Pendiente</span></div>';
+  }).join('') || '<div style="color:var(--tx3);font-size:13px;text-align:center;padding:16px">Sin solicitudes pendientes</div>';
+
+  el.innerHTML = '<div class="page-header"><h1 class="page-title">Dashboard</h1><p class="page-sub">Resumen People — Draftea + Pitaco</p></div>' +
+    '<div class="page-body">' +
+    '<div class="kpi-row">' +
+    kpi('purple','Total empleados',emps.length,'Ambas compañías') +
+    kpi('green','Draftea',draftea,'Plataformas') +
+    kpi('blue','Pitaco',pitaco,'Brasil') +
+    kpi('gold','Vacaciones pendientes',pending,'Por aprobar') +
+    '</div>' +
+    '<div class="two-col">' +
+    '<div class="card"><div class="card-title">Distribución por área</div>' + areaRows + '</div>' +
+    '<div class="card"><div class="card-title">⏳ Solicitudes pendientes</div>' + pendingCards + '</div>' +
+    '</div>' +
+    '<div class="two-col" style="margin-top:16px">' +
+    holidaysWidget() +
+    anniversariesWidget() +
+    '</div></div>';
+}
+
+function kpi(cls, label, value, sub) {
+  return '<div class="kpi-card ' + cls + '"><div class="kpi-label">' + label + '</div><div class="kpi-value">' + value + '</div><div class="kpi-sub">' + sub + '</div></div>';
+}
+
+// ============================================================
+// RENDER: EMPLOYEES
+// ============================================================
+function renderEmployees(el) {
+  el.innerHTML = '<div class="page-header"><h1 class="page-title">Empleados</h1><p class="page-sub">Directorio completo — Draftea + Pitaco</p></div>' +
+    '<div class="page-body">' + empTable(EMPLOYEES, true) + '</div>';
+}
+
+function renderTeam(el) {
+  var myTeam = EMPLOYEES.filter(function(e){ return e.manager === currentUser.name; });
+  el.innerHTML = '<div class="page-header"><h1 class="page-title">Mi Equipo</h1><p class="page-sub">Tus reportes directos</p></div>' +
+    '<div class="page-body">' + empTable(myTeam, false) + '</div>';
+}
+
+function empTable(data, showFilters) {
+  var filterHtml = showFilters ? '<div class="tbl-filter-row" id="coFilters">' +
+    '<button class="fpill active" onclick="filterEmpCo(this,\'all\')">Todas</button>' +
+    '<button class="fpill" onclick="filterEmpCo(this,\'Draftea\')">Draftea</button>' +
+    '<button class="fpill" onclick="filterEmpCo(this,\'Pitaco\')">Pitaco</button>' +
+    '</div>' : '';
+
+  var rows = data.map(function(e){
+    var avg = avgPerf(e); var tier = perfTier(avg);
+    return '<tr data-company="' + e.company + '">' +
+      '<td><div class="name-cell"><div class="avatar">' + initials(e.name) + '</div><div><div style="font-weight:500">' + e.name + '</div><div style="font-size:11px;color:var(--tx2)">' + e.email + '</div></div></div></td>' +
+      '<td>' + coTag(e.company) + '</td>' +
+      '<td>' + e.area + '</td>' +
+      '<td>' + e.role + '</td>' +
+      '<td>' + e.country + '</td>' +
+      '<td style="font-size:12px;color:var(--tx2)">' + fmtDate(e.start) + '</td>' +
+      '<td>' + (avg ? '<span class="badge ' + tier.cls + '">' + tier.label + '</span>' : '<span class="badge b-gray">—</span>') + '</td>' +
+      '<td><button class="btn btn-ghost btn-sm" onclick="openEmpDrawer(\'' + e.id + '\')">Ver →</button></td></tr>';
+  }).join('');
+
+  return '<div class="tbl-wrap">' +
+    '<div class="tbl-top"><h3>Empleados (' + data.length + ')</h3>' +
+    '<input class="tbl-search" placeholder="Buscar..." onkeyup="filterEmpSearch(this.value)"/></div>' +
+    filterHtml +
+    '<table><thead><tr><th>Empleado</th><th>Empresa</th><th>Área</th><th>Cargo</th><th>País</th><th>Ingreso</th><th>Performance</th><th></th></tr></thead>' +
+    '<tbody id="empTbody">' + rows + '</tbody></table></div>';
+}
+
+function filterEmpCo(btn, co) {
+  document.querySelectorAll('#coFilters .fpill').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.querySelectorAll('#empTbody tr').forEach(function(tr){
+    tr.style.display = (co === 'all' || tr.dataset.company === co) ? '' : 'none';
+  });
+}
+
+function filterEmpSearch(q) {
+  q = q.toLowerCase();
+  document.querySelectorAll('#empTbody tr').forEach(function(tr){
+    tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+// ============================================================
+// EMPLOYEE DRAWER
+// ============================================================
+function openEmpDrawer(id) {
+  var e = EMPLOYEES.find(function(emp){ return emp.id === id; });
+  if (!e) return;
+  var role = currentUser.role;
+  var canSeeSalary = role === 'admin';
+
+  var salaryBlock = canSeeSalary ? (
+    '<div class="drawer-section"><div class="drawer-section-title">💰 Compensación</div>' +
+    '<div class="salary-big">' + fmtNum(e.salary) + ' ' + e.currency + '</div>' +
+    (e.commission ? '<div style="font-size:12px;color:var(--tx2);margin-top:4px">Comisión OnTop: ' + e.commission + '</div>' : '') +
+    '<div style="margin-top:14px">' +
+    (e.salaryHistory||[]).map(function(h){
+      return '<div class="salary-row"><div><div style="font-size:13px;font-weight:500">' + fmtNum(h.amount) + ' ' + h.currency + '</div>' +
+        '<div style="font-size:11px;color:var(--tx2)">' + fmtDate(h.date) + ' · ' + h.reason + '</div></div>' +
+        (h.pct ? '<span class="pct-pill ml-a">+' + h.pct + '%</span>' : '') + '</div>';
+    }).join('') + '</div></div>'
+  ) : '';
+
+  var avg = avgPerf(e);
+  var tier = perfTier(avg);
+  var perfBlock = e.perf ? (
+    '<div class="drawer-section"><div class="drawer-section-title">📊 Performance</div>' +
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">' +
+    '<span class="badge ' + tier.cls + '">' + tier.label + '</span>' +
+    (avg ? '<span style="font-size:20px;font-weight:700;color:var(--tx)">' + avg + '</span><span style="font-size:12px;color:var(--tx2)">/10</span>' : '') +
+    '</div>' +
+    (e.perf.manager_score ? scoreRow('Manager','#6D28D9',e.perf.manager_score) : '') +
+    (e.perf.peer_avg ? scoreRow('Peers','#3B82F6',e.perf.peer_avg) : '') +
+    (e.perf.direct_report_avg ? scoreRow('Direct Reports','#10B981',e.perf.direct_report_avg) : '') +
+    (e.perf.feedback ? '<div style="margin-top:12px;font-size:12px;color:var(--tx2);background:var(--bg);padding:10px 12px;border-radius:8px;line-height:1.6">' + e.perf.feedback + '</div>' : '') +
+    '</div>'
+  ) : '';
+
+  var eqBlock = (e.equipment||[]).length > 0 ? (
+    '<div class="drawer-section"><div class="drawer-section-title">💻 Equipamiento</div>' +
+    e.equipment.map(function(eq){
+      return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">' +
+        '<div style="font-size:22px">💻</div>' +
+        '<div><div style="font-size:13px;font-weight:500">' + eq.model + '</div>' +
+        '<div style="font-size:11px;color:var(--tx2)">S/N: ' + eq.serial + ' · ' + eq.specs + '</div></div>' +
+        '<span class="badge b-green ml-a">Asignado</span></div>';
+    }).join('') + '</div>'
+  ) : '';
+
+  var vacBlock = '<div class="drawer-section"><div class="drawer-section-title">🌴 Vacaciones</div>' +
+    '<div class="three-col" style="gap:8px">' +
+    '<div style="background:var(--bg);border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:700;color:var(--ac)">' + e.vacDays + '</div><div style="font-size:11px;color:var(--tx2)">Total días</div></div>' +
+    '<div style="background:var(--bg);border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:700;color:var(--tx)">' + e.vacUsed + '</div><div style="font-size:11px;color:var(--tx2)">Tomados</div></div>' +
+    '<div style="background:var(--bg);border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:700;color:var(--green)">' + (e.vacDays-e.vacUsed) + '</div><div style="font-size:11px;color:var(--tx2)">Disponibles</div></div>' +
+    '</div></div>';
+
+  var html = '<div class="drawer-header">' +
+    '<div class="drawer-avatar">' + initials(e.name) + '</div>' +
+    '<div><div class="drawer-name">' + e.name + '</div>' +
+    '<div class="drawer-role">' + e.role + ' · ' + e.area + ' · ' + coTag(e.company) + '</div></div>' +
+    '<button class="drawer-close" onclick="closeDrawer()">×</button></div>' +
+    '<div class="drawer-body">' +
+    '<div class="drawer-section"><div class="drawer-section-title">Información personal & laboral</div>' +
+    '<div class="info-grid">' +
+    irow('País',e.country) + irow('Manager',e.manager||'—') +
+    irow('Teléfono',e.phone||'—') + irow('Email personal',e.email||'—') +
+    irow('Fecha ingreso',fmtDate(e.start)) + irow('Tipo contrato','Full-time') +
+    irow('Contacto emergencia',e.emergency||'—','full') +
+    '</div></div>' +
+    salaryBlock + perfBlock + vacBlock + eqBlock +
+    '</div>';
+
+  openDrawer(html);
+}
+
+function irow(label, value, full) {
+  return '<div class="info-item' + (full?' style="grid-column:1/-1"':'') + '"><label>' + label + '</label><span>' + (value||'—') + '</span></div>';
+}
+function scoreRow(label, color, score) {
+  return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">' +
+    '<span style="font-size:12px;color:var(--tx2);width:90px">' + label + '</span>' +
+    '<div class="perf-bar-wrap"><div class="perf-bar" style="width:' + (score*10) + '%;background:' + color + '"></div></div>' +
+    '<span style="font-size:13px;font-weight:600;width:28px;text-align:right">' + score + '</span></div>';
+}
+
+// ============================================================
+// RENDER: COMPENSATION
+// ============================================================
+function renderCompensation(el) {
+  var usdEmps = EMPLOYEES.filter(function(e){ return e.currency==='USD'; });
+  var mxnEmps = EMPLOYEES.filter(function(e){ return e.currency==='MXN'; });
+  var brlEmps = EMPLOYEES.filter(function(e){ return e.currency==='BRL'; });
+
+  var rows = EMPLOYEES.map(function(e){
+    var last = e.salaryHistory && e.salaryHistory.length > 1 ? e.salaryHistory[e.salaryHistory.length-1] : null;
+    return '<tr><td><div class="name-cell"><div class="avatar">' + initials(e.name) + '</div>' + e.name + '</div></td>' +
+      '<td>' + coTag(e.company) + '</td>' +
+      '<td>' + e.role + '</td>' +
+      '<td><strong>' + fmtNum(e.salary) + ' ' + e.currency + '</strong></td>' +
+      '<td style="font-size:12px;color:var(--tx2)">' + (last ? fmtDate(last.date) + ' · ' + last.reason : '—') + '</td></tr>';
+  }).join('');
+
+  el.innerHTML = '<div class="page-header"><h1 class="page-title">Compensación</h1><p class="page-sub">Vista confidencial — solo Admin</p></div>' +
+    '<div class="page-body">' +
+    '<div class="kpi-row" style="grid-template-columns:repeat(3,1fr)">' +
+    kpi('purple','Headcount USD',usdEmps.length,'Draftea int\'l') +
+    kpi('gold','Headcount MXN',mxnEmps.length,'México') +
+    kpi('blue','Headcount BRL',brlEmps.length,'Brasil (Pitaco)') +
+    '</div>' +
+    '<div class="tbl-wrap"><div class="tbl-top"><h3>Tabla salarial</h3></div>' +
+    '<table><thead><tr><th>Empleado</th><th>Empresa</th><th>Cargo</th><th>Salario</th><th>Último ajuste</th></tr></thead>' +
+    '<tbody>' + rows + '</tbody></table></div></div>';
+}
+
+// ============================================================
+// RENDER: EQUIPMENT
+// ============================================================
+function renderEquipment(el) {
+  var rows = EMPLOYEES.filter(function(e){ return e.equipment && e.equipment.length; }).map(function(e){
+    return e.equipment.map(function(eq){
+      return '<tr><td><div class="name-cell"><div class="avatar">' + initials(e.name) + '</div>' + e.name + '</div></td>' +
+        '<td>' + coTag(e.company) + '</td>' +
+        '<td>' + eq.brand + ' ' + eq.model + '</td>' +
+        '<td style="font-size:12px;color:var(--tx2)">' + eq.serial + '</td>' +
+        '<td style="font-size:12px;color:var(--tx2)">' + eq.specs + '</td>' +
+        '<td><span class="badge b-green">Asignado</span></td></tr>';
+    }).join('');
+  }).join('');
+
+  el.innerHTML = '<div class="page-header"><h1 class="page-title">Equipamiento</h1><p class="page-sub">Activos asignados</p></div>' +
+    '<div class="page-body"><div class="tbl-wrap"><div class="tbl-top"><h3>Computadoras asignadas</h3>' +
+    '<input class="tbl-search" placeholder="Buscar..." onkeyup="this.closest(\'.tbl-wrap\').querySelectorAll(\'tbody tr\').forEach(function(tr){tr.style.display=tr.textContent.toLowerCase().includes(event.target.value.toLowerCase())?\'\':\' none\'})"/>' +
+    '</div><table><thead><tr><th>Empleado</th><th>Empresa</th><th>Modelo</th><th>Serial</th><th>Specs</th><th>Estado</th></tr></thead><tbody>' + rows + '</tbody></table></div></div>';
+}
+
+// ============================================================
+// RENDER: STOCK
+// ============================================================
+function renderStock(el) {
+  var rows = STOCK.map(function(s){
+    return '<tr><td>' + s.brand + ' ' + s.model + '</td>' +
+      '<td><strong>' + s.qty + '</strong></td>' +
+      '<td><span class="badge ' + (s.condition==='Nuevo'?'b-green':'b-blue') + '">' + s.condition + '</span></td>' +
+      '<td>' + s.location + '</td>' +
+      '<td><span class="badge ' + (s.assignable?'b-green':'b-gray') + '">' + (s.assignable?'Disponible':'No disponible') + '</span></td></tr>';
+  }).join('');
+
+  el.innerHTML = '<div class="page-header"><h1 class="page-title">Stock</h1><p class="page-sub">Inventario de equipos disponibles</p></div>' +
+    '<div class="page-body"><div class="tbl-wrap"><div class="tbl-top"><h3>Inventario</h3></div>' +
+    '<table><thead><tr><th>Equipo</th><th>Cantidad</th><th>Condición</th><th>Ubicación</th><th>Estado</th></tr></thead>' +
+    '<tbody>' + rows + '</tbody></table></div></div>';
+}
+
+// ============================================================
+// RENDER: PERFORMANCE
+// ============================================================
+function renderPerformance(el) {
+  var rows = EMPLOYEES.filter(function(e){ return e.perf; }).map(function(e){
+    var avg = avgPerf(e); var tier = perfTier(avg);
+    return '<tr><td><div class="name-cell"><div class="avatar">' + initials(e.name) + '</div>' +
+      '<div><div style="font-weight:500">' + e.name + '</div>' +
+      '<div style="font-size:11px;color:var(--tx2)">' + e.role + '</div></div></div></td>' +
+      '<td>' + coTag(e.company) + '</td>' +
+      '<td>' + e.area + '</td>' +
+      '<td style="text-align:center">' + (e.perf.manager_score||'—') + '</td>' +
+      '<td style="text-align:center">' + (e.perf.peer_avg||'—') + '</td>' +
+      '<td style="text-align:center">' + (e.perf.direct_report_avg||'—') + '</td>' +
+      '<td style="text-align:center;font-weight:700;color:var(--ac)">' + (avg||'—') + '</td>' +
+      '<td><span class="badge ' + tier.cls + '">' + tier.label + '</span></td>' +
+      '<td><button class="btn btn-ghost btn-sm" onclick="openEmpDrawer(\'' + e.id + '\')">Ver →</button></td></tr>';
+  }).join('');
+
+  el.innerHTML = '<div class="page-header"><h1 class="page-title">Performance</h1><p class="page-sub">Q Sep–Nov 2025 · 360° evaluaciones</p></div>' +
+    '<div class="page-body"><div class="tbl-wrap">' +
+    '<div class="tbl-top"><h3>Resultados</h3>' +
+    '<input class="tbl-search" placeholder="Buscar..." onkeyup="this.closest(\'.tbl-wrap\').querySelectorAll(\'tbody tr\').forEach(function(tr){tr.style.display=tr.textContent.toLowerCase().includes(event.target.value.toLowerCase())?\'\':\' none\'})"/>' +
+    '</div>' +
+    '<table><thead><tr><th>Empleado</th><th>Empresa</th><th>Área</th><th style="text-align:center">Manager</th><th style="text-align:center">Peers</th><th style="text-align:center">Directs</th><th style="text-align:center">Promedio</th><th>Tier</th><th></th></tr></thead>' +
+    '<tbody>' + rows + '</tbody></table></div></div>';
+}
+
+// ============================================================
+// RENDER: CHURN / ROTACIÓN
+// ============================================================
+function renderChurn(el) {
+  var byArea = {};
+  CHURN.forEach(function(c){ byArea[c.area] = (byArea[c.area]||0)+1; });
+  var byReason = {};
+  CHURN.forEach(function(c){ byReason[c.reason] = (byReason[c.reason]||0)+1; });
+
+  var rows = CHURN.map(function(c){
+    return '<tr><td>' + c.name + '</td>' +
+      '<td>' + coTag(c.company) + '</td>' +
+      '<td>' + c.area + '</td>' +
+      '<td style="font-size:12px">' + c.role + '</td>' +
+      '<td style="font-size:12px;color:var(--tx2)">' + fmtDate(c.start) + '</td>' +
+      '<td style="font-size:12px;color:var(--tx2)">' + fmtDate(c.end) + '</td>' +
+      '<td>' + c.tenure + 'm</td>' +
+      '<td><span class="badge ' + (c.reason.includes('Renuncia')?'b-orange':'b-red') + '">' + c.reason + '</span></td></tr>';
+  }).join('');
+
+  var avgTenure = (CHURN.reduce(function(a,c){ return a+c.tenure; },0)/CHURN.length).toFixed(1);
+
+  el.innerHTML = '<div class="page-header"><h1 class="page-title">Rotación</h1><p class="page-sub">Feb 2025 – Mar 2026</p></div>' +
+    '<div class="page-body">' +
+    '<div class="kpi-row" style="grid-template-columns:repeat(3,1fr)">' +
+    kpi('red','Total desvinculaciones',CHURN.length,'Ambas compañías') +
+    kpi('orange','Promedio de permanencia',avgTenure+'m','Meses en empresa') +
+    kpi('blue','Tasa por renuncia',CHURN.filter(function(c){ return c.reason.includes('Renuncia'); }).length,'Voluntarias') +
+    '</div>' +
+    '<div class="tbl-wrap"><div class="tbl-top"><h3>Registro de desvinculaciones</h3></div>' +
+    '<table><thead><tr><th>Nombre</th><th>Empresa</th><th>Área</th><th>Rol</th><th>Ingreso</th><th>Egreso</th><th>Permanencia</th><th>Motivo</th></tr></thead>' +
+    '<tbody>' + rows + '</tbody></table></div></div>';
+}
+
+// ============================================================
+// RENDER: VACATIONS (admin + manager)
+// ============================================================
+function renderVacations(el) {
+  var role = currentUser.role;
+  var pending = VACATIONS.filter(function(v){
+    if (v.status !== 'pending') return false;
+    if (role === 'admin') return true;
+    return v.manager_name === currentUser.name;
+  });
+  var history = VACATIONS.filter(function(v){
+    if (v.status === 'pending') return false;
+    if (role === 'admin') return true;
+    return v.manager_name === currentUser.name;
+  });
+
+  var pendingHtml = pending.map(function(v){
+    return '<div class="vac-req-card pending">' +
+      '<div style="display:flex;align-items:center;gap:10px">' +
+      '<div class="avatar">' + initials(v.employee_name) + '</div>' +
+      '<div style="flex:1"><div style="font-weight:500;font-size:14px">' + v.employee_name + ' <span style="font-size:12px;color:var(--tx2)">(' + v.company + ')</span></div>' +
+      '<div style="font-size:12px;color:var(--tx2);margin-top:2px">📅 ' + fmtDate(v.start) + ' → ' + fmtDate(v.end) + ' · <strong>' + v.days + ' días</strong> · ' + v.reason + '</div></div>' +
+      '<div style="display:flex;gap:6px">' +
+      '<button class="btn btn-success btn-sm" onclick="approveVac(\'' + v.id + '\',\'approved\')">✓ Aprobar</button>' +
+      '<button class="btn btn-danger btn-sm" onclick="approveVac(\'' + v.id + '\',\'rejected\')">✗ Rechazar</button>' +
+      '</div></div></div>';
+  }).join('') || '<div style="color:var(--tx3);font-size:13px;padding:16px;text-align:center">Sin solicitudes pendientes</div>';
+
+  var histRows = history.map(function(v){
+    return '<tr><td><div class="name-cell"><div class="avatar">' + initials(v.employee_name) + '</div>' + v.employee_name + '</div></td>' +
+      '<td>' + coTag(v.company) + '</td>' +
+      '<td>' + fmtDate(v.start) + '</td><td>' + fmtDate(v.end) + '</td>' +
+      '<td>' + v.days + '</td>' +
+      '<td style="color:var(--tx2);font-size:12px">' + v.reason + '</td>' +
+      '<td><span class="badge ' + (v.status==='approved'?'b-green':'b-red') + '">' + (v.status==='approved'?'Aprobado':'Rechazado') + '</span></td></tr>';
+  }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--tx3);padding:24px">Sin historial</td></tr>';
+
+  el.innerHTML = '<div class="page-header"><h1 class="page-title">Vacaciones</h1><p class="page-sub">' + (role==='admin'?'Todas las solicitudes':'Solicitudes de tu equipo') + '</p></div>' +
+    '<div class="page-body">' +
+    (pending.length > 0 ? '<div class="card"><div class="card-title">⏳ Pendientes (' + pending.length + ')</div>' + pendingHtml + '</div>' : '') +
+    '<div class="tbl-wrap"><div class="tbl-top"><h3>Historial</h3></div>' +
+    '<table><thead><tr><th>Empleado</th><th>Empresa</th><th>Desde</th><th>Hasta</th><th>Días</th><th>Motivo</th><th>Estado</th></tr></thead>' +
+    '<tbody>' + histRows + '</tbody></table></div></div>';
+}
+
+async function approveVac(id, status) {
+  var v = VACATIONS.find(function(x){ return x.id===id; });
+  if (!v) return;
+  v.status = status;
+  // Write to Supabase if connected
+  if (sbSession) {
+    await sbUpdate('vacations', 'id=eq.' + id,
+      { status: status, approved_by: currentUser.name, approved_at: new Date().toISOString() },
+      sbSession.access_token
+    );
+  }
+  var emoji = status==='approved' ? '✅' : '❌';
+  var msg = emoji + ' *Vacaciones ' + (status==='approved'?'APROBADAS':'RECHAZADAS') + '*\n' +
+    '• Empleado: ' + v.employee_name + '\n' +
+    '• Período: ' + fmtDate(v.start) + ' → ' + fmtDate(v.end) + ' (' + v.days + ' días)\n' +
+    '• Motivo: ' + v.reason + '\n' +
+    '• Procesado por: ' + currentUser.name;
+  await sendSlack(msg);
+  showToast('Solicitud ' + (status==='approved'?'aprobada':'rechazada') + ' · Notificación enviada a Slack ✓', 'success');
+  buildSidebar();
+  renderVacations(document.getElementById('mainContent'));
+}
+
+// ============================================================
+// RENDER: MY PROFILE (employee)
+// ============================================================
+function renderMyProfile(el) {
+  var e = currentEmp;
+  if (!e) { el.innerHTML = '<div class="page-header"><h1 class="page-title">Mi Perfil</h1></div><div class="page-body"><div class="card">Sin datos</div></div>'; return; }
+  var avg = avgPerf(e); var tier = perfTier(avg);
+
+  el.innerHTML = '<div class="page-header"><h1 class="page-title">Mi Perfil</h1><p class="page-sub">' + e.role + ' · ' + e.area + ' · ' + e.company + '</p></div>' +
+    '<div class="page-body">' +
+    '<div class="card">' +
+    '<div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">' +
+    '<div class="drawer-avatar">' + initials(e.name) + '</div>' +
+    '<div><div style="font-family:var(--display);font-size:22px;font-weight:700">' + e.name + '</div>' +
+    '<div style="font-size:13px;color:var(--tx2)">' + e.role + ' · ' + e.area + '</div></div></div>' +
+    '<div class="info-grid">' +
+    irow('País',e.country) + irow('Manager',e.manager||'—') +
+    irow('Email',e.email) + irow('Teléfono',e.phone||'—') +
+    irow('Fecha ingreso',fmtDate(e.start)) + irow('Empresa',e.company) +
+    '</div></div>' +
+    '<div class="two-col">' +
+    '<div class="card"><div class="card-title">🌴 Mis vacaciones</div>' +
+    '<div class="three-col" style="margin-bottom:12px">' +
+    '<div style="text-align:center"><div style="font-size:22px;font-weight:700;color:var(--ac)">' + e.vacDays + '</div><div style="font-size:11px;color:var(--tx2)">Total</div></div>' +
+    '<div style="text-align:center"><div style="font-size:22px;font-weight:700">' + e.vacUsed + '</div><div style="font-size:11px;color:var(--tx2)">Tomados</div></div>' +
+    '<div style="text-align:center"><div style="font-size:22px;font-weight:700;color:var(--green)">' + (e.vacDays-e.vacUsed) + '</div><div style="font-size:11px;color:var(--tx2)">Disponibles</div></div>' +
+    '</div>' +
+    '<div class="prog-wrap"><div class="prog-bar" style="width:' + Math.round(e.vacUsed/e.vacDays*100) + '%;background:var(--ac)"></div></div>' +
+    '<div style="margin-top:14px"><button class="btn btn-primary btn-sm" onclick="navigate(\'my-vacations\')">Solicitar vacaciones →</button></div>' +
+    '</div>' +
+    '<div class="card"><div class="card-title">📊 Mi Performance</div>' +
+    (avg ? '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span class="badge ' + tier.cls + '">' + tier.label + '</span><span style="font-size:22px;font-weight:700;color:var(--tx)">' + avg + '</span><span style="font-size:12px;color:var(--tx2)">/10</span></div>' : '') +
+    (e.perf && e.perf.manager_score ? scoreRow('Manager','#6D28D9',e.perf.manager_score) : '') +
+    (e.perf && e.perf.peer_avg ? scoreRow('Peers','#3B82F6',e.perf.peer_avg) : '') +
+    '</div></div>' +
+    '<div class="card"><div class="card-title">💻 Mi Equipo</div>' +
+    (e.equipment||[]).map(function(eq){
+      return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0"><div style="font-size:20px">💻</div><div><div style="font-weight:500;font-size:13px">' + eq.model + '</div><div style="font-size:11px;color:var(--tx2)">S/N: ' + eq.serial + '</div></div></div>';
+    }).join('') +
+    '</div></div>';
+}
+
+// ============================================================
+// RENDER: MY VACATIONS (employee)
+// ============================================================
+function renderMyVacations(el) {
+  var e = currentEmp;
+  var myVacs = VACATIONS.filter(function(v){ return v.employee_id === e.id; });
+  var usedApproved = myVacs.filter(function(v){ return v.status==='approved'; }).reduce(function(a,v){ return a+v.days; },0);
+  var pendingDays  = myVacs.filter(function(v){ return v.status==='pending';  }).reduce(function(a,v){ return a+v.days; },0);
+  var available = e.vacDays - usedApproved - pendingDays;
+
+  var histRows = myVacs.map(function(v){
+    return '<tr><td>' + fmtDate(v.start) + '</td><td>' + fmtDate(v.end) + '</td>' +
+      '<td>' + v.days + '</td><td style="color:var(--tx2);font-size:12px">' + v.reason + '</td>' +
+      '<td><span class="badge ' + (v.status==='approved'?'b-green':v.status==='rejected'?'b-red':'b-gold') + '">' + (v.status==='approved'?'Aprobado':v.status==='rejected'?'Rechazado':'Pendiente') + '</span></td></tr>';
+  }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--tx3);padding:24px">Sin solicitudes</td></tr>';
+
+  el.innerHTML = '<div class="page-header"><h1 class="page-title">Mis Vacaciones</h1><p class="page-sub">Solicita y revisa tus días de descanso</p></div>' +
+    '<div class="page-body">' +
+    '<div class="kpi-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">' +
+    kpi('purple','Días totales',e.vacDays,'Asignados') +
+    kpi('gold','Días tomados',usedApproved,'Aprobados') +
+    kpi('green','Disponibles',available,'Para solicitar') +
+    '</div>' +
+    '<div class="card">' +
+    '<div class="card-title">📋 Nueva solicitud</div>' +
+    '<div class="vac-form-grid">' +
+    '<div><label style="font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px">Fecha inicio</label><input type="date" id="vacStart" class="tbl-search" style="width:100%"/></div>' +
+    '<div><label style="font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px">Fecha fin</label><input type="date" id="vacEnd" class="tbl-search" style="width:100%"/></div>' +
+    '</div>' +
+    '<div class="vac-form-full" style="margin-bottom:12px"><label style="font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px">Motivo</label><input type="text" id="vacReason" class="tbl-search" style="width:100%" placeholder="Ej: Vacaciones anuales, viaje familiar..."/></div>' +
+    '<button class="btn btn-primary" onclick="submitVac()">🌴 Solicitar vacaciones</button>' +
+    '</div>' +
+    '<div class="tbl-wrap"><div class="tbl-top"><h3>Mis solicitudes</h3></div>' +
+    '<table><thead><tr><th>Desde</th><th>Hasta</th><th>Días</th><th>Motivo</th><th>Estado</th></tr></thead>' +
+    '<tbody>' + histRows + '</tbody></table></div></div>';
+}
+
+async function submitVac() {
+  var start  = document.getElementById('vacStart').value;
+  var end    = document.getElementById('vacEnd').value;
+  var reason = document.getElementById('vacReason').value.trim();
+  if (!start||!end||!reason) { showToast('Completa todos los campos','error'); return; }
+  var s = new Date(start), f = new Date(end);
+  if (f < s) { showToast('La fecha fin debe ser posterior al inicio','error'); return; }
+  var days = Math.ceil((f-s)/(1000*60*60*24))+1;
+  var e = currentEmp;
+  var used = VACATIONS.filter(function(v){ return v.employee_id===e.id&&v.status==='approved'; }).reduce(function(a,v){ return a+v.days; },0);
+  var pend = VACATIONS.filter(function(v){ return v.employee_id===e.id&&v.status==='pending';  }).reduce(function(a,v){ return a+v.days; },0);
+  if (days > e.vacDays-used-pend) { showToast('No tienes suficientes días disponibles','error'); return; }
+
+  var newV = { id:'v'+Date.now(), employee_name:e.name, employee_id:e.id, manager_name:e.manager, company:e.company, start:start, end:end, days:days, reason:reason, status:'pending', created:new Date().toISOString().split('T')[0] };
+  VACATIONS.unshift(newV);
+  // Write to Supabase if connected
+  if (sbSession) {
+    await sbInsert('vacations', {
+      employee_id: e.id, manager_id: e.manager_id || null,
+      start_date: startDate, end_date: endDate, days: days,
+      reason: reason, status: 'pending'
+    }, sbSession.access_token);
+  }
+
+  var msg = '🌴 *Nueva solicitud de vacaciones*\n' +
+    '• Empleado: ' + e.name + ' (' + e.company + ')\n' +
+    '• Período: ' + fmtDate(start) + ' → ' + fmtDate(end) + ' (' + days + ' días)\n' +
+    '• Motivo: ' + reason + '\n' +
+    '• Manager: ' + (e.manager||'—') + '\n' +
+    'Por favor ingresa al People Hub para aprobar o rechazar.';
+  await sendSlack(msg);
+  showToast('Solicitud enviada · Tu manager fue notificado por Slack ✓','success');
+  buildSidebar();
+  renderMyVacations(document.getElementById('mainContent'));
+}
+
+
+// ============================================================
+// RAISES DATA
+// ============================================================
+var RAISES = [
+  { id:'r1', employee_id:'D001', employee_name:'Franco Calvo', company:'Draftea', area:'Engineering',
+    current_salary:9500, current_currency:'USD', proposed_salary:10500, proposed_currency:'USD',
+    pct:10.5, reason:'Performance excepcional Q4 2025. Referente técnico del equipo.',
+    requested_by:'Joe Cohen', requested_at:'2026-04-01', status:'pending', approved_at:null, approved_by:null },
+  { id:'r2', employee_id:'D007', employee_name:'Andrés Poveda', company:'Draftea', area:'Engineering',
+    current_salary:10500, current_currency:'USD', proposed_salary:12000, proposed_currency:'USD',
+    pct:14.3, reason:'Liderazgo del equipo de Backend. Crecimiento en responsabilidades.',
+    requested_by:'Joe Cohen', requested_at:'2026-03-15', status:'approved', approved_at:'2026-03-20', approved_by:'Comité' },
+  { id:'r3', employee_id:'R001', employee_name:'Igor Michels', company:'Pitaco', area:'Engineering',
+    current_salary:22000, current_currency:'BRL', proposed_salary:25000, proposed_currency:'BRL',
+    pct:13.6, reason:'Tech Lead consolidado. Lidera migración de arquitectura.',
+    requested_by:'Rodrigo Barbosa', requested_at:'2026-03-28', status:'pending', approved_at:null, approved_by:null },
+];
+
+// ============================================================
+// HOLIDAYS DATA — 2025 + 2026 · 8 países LATAM
+// ============================================================
+var HOLIDAYS = {
+  'Chile': {
+    flag:'🇨🇱', currency:'CLP',
+    days:[
+      {date:'2025-01-01',name:'Año Nuevo'},
+      {date:'2025-04-18',name:'Viernes Santo'},
+      {date:'2025-04-19',name:'Sábado Santo'},
+      {date:'2025-05-01',name:'Día del Trabajo'},
+      {date:'2025-05-21',name:'Día de las Glorias Navales'},
+      {date:'2025-06-20',name:'Día Nacional de los Pueblos Indígenas'},
+      {date:'2025-06-29',name:'San Pedro y San Pablo'},
+      {date:'2025-07-16',name:'Virgen del Carmen'},
+      {date:'2025-08-15',name:'Asunción de la Virgen'},
+      {date:'2025-09-18',name:'Independencia de Chile'},
+      {date:'2025-09-19',name:'Día de las Glorias del Ejército'},
+      {date:'2025-10-12',name:'Encuentro de Dos Mundos'},
+      {date:'2025-10-31',name:'Día de las Iglesias Evangélicas'},
+      {date:'2025-11-01',name:'Día de Todos los Santos'},
+      {date:'2025-12-08',name:'Inmaculada Concepción'},
+      {date:'2025-12-25',name:'Navidad'},
+      {date:'2026-01-01',name:'Año Nuevo'},
+      {date:'2026-04-03',name:'Viernes Santo'},
+      {date:'2026-04-04',name:'Sábado Santo'},
+      {date:'2026-05-01',name:'Día del Trabajo'},
+      {date:'2026-05-21',name:'Día de las Glorias Navales'},
+      {date:'2026-06-29',name:'San Pedro y San Pablo'},
+      {date:'2026-07-16',name:'Virgen del Carmen'},
+      {date:'2026-08-15',name:'Asunción de la Virgen'},
+      {date:'2026-09-18',name:'Independencia de Chile'},
+      {date:'2026-09-19',name:'Glorias del Ejército'},
+      {date:'2026-10-12',name:'Encuentro de Dos Mundos'},
+      {date:'2026-11-01',name:'Todos los Santos'},
+      {date:'2026-12-08',name:'Inmaculada Concepción'},
+      {date:'2026-12-25',name:'Navidad'},
+    ]
+  },
+  'México': {
+    flag:'🇲🇽', currency:'MXN',
+    days:[
+      {date:'2025-01-01',name:'Año Nuevo'},
+      {date:'2025-02-03',name:'Constitución (lunes)'},
+      {date:'2025-03-17',name:'Natalicio de Juárez (lunes)'},
+      {date:'2025-04-17',name:'Jueves Santo'},
+      {date:'2025-04-18',name:'Viernes Santo'},
+      {date:'2025-05-01',name:'Día del Trabajo'},
+      {date:'2025-09-16',name:'Independencia de México'},
+      {date:'2025-11-17',name:'Revolución Mexicana (lunes)'},
+      {date:'2025-12-25',name:'Navidad'},
+      {date:'2026-01-01',name:'Año Nuevo'},
+      {date:'2026-02-02',name:'Constitución (lunes)'},
+      {date:'2026-03-16',name:'Natalicio de Juárez (lunes)'},
+      {date:'2026-04-02',name:'Jueves Santo'},
+      {date:'2026-04-03',name:'Viernes Santo'},
+      {date:'2026-05-01',name:'Día del Trabajo'},
+      {date:'2026-09-16',name:'Independencia de México'},
+      {date:'2026-11-16',name:'Revolución Mexicana (lunes)'},
+      {date:'2026-12-25',name:'Navidad'},
+    ]
+  },
+  'Brasil': {
+    flag:'🇧🇷', currency:'BRL',
+    days:[
+      {date:'2025-01-01',name:'Confraternização Universal'},
+      {date:'2025-03-04',name:'Carnaval'},
+      {date:'2025-03-05',name:'Carnaval'},
+      {date:'2025-04-18',name:'Sexta-feira Santa'},
+      {date:'2025-04-21',name:'Tiradentes'},
+      {date:'2025-05-01',name:'Dia do Trabalho'},
+      {date:'2025-06-19',name:'Corpus Christi'},
+      {date:'2025-09-07',name:'Independência do Brasil'},
+      {date:'2025-10-12',name:'Nossa Sra. Aparecida'},
+      {date:'2025-11-02',name:'Finados'},
+      {date:'2025-11-15',name:'Proclamação da República'},
+      {date:'2025-11-20',name:'Consciência Negra'},
+      {date:'2025-12-25',name:'Natal'},
+      {date:'2026-01-01',name:'Confraternização Universal'},
+      {date:'2026-02-17',name:'Carnaval'},
+      {date:'2026-02-18',name:'Carnaval'},
+      {date:'2026-04-03',name:'Sexta-feira Santa'},
+      {date:'2026-04-21',name:'Tiradentes'},
+      {date:'2026-05-01',name:'Dia do Trabalho'},
+      {date:'2026-06-04',name:'Corpus Christi'},
+      {date:'2026-09-07',name:'Independência do Brasil'},
+      {date:'2026-10-12',name:'Nossa Sra. Aparecida'},
+      {date:'2026-11-02',name:'Finados'},
+      {date:'2026-11-15',name:'Proclamação da República'},
+      {date:'2026-11-20',name:'Consciência Negra'},
+      {date:'2026-12-25',name:'Natal'},
+    ]
+  },
+  'Argentina': {
+    flag:'🇦🇷', currency:'ARS',
+    days:[
+      {date:'2025-01-01',name:'Año Nuevo'},
+      {date:'2025-03-03',name:'Carnaval'},
+      {date:'2025-03-04',name:'Carnaval'},
+      {date:'2025-03-24',name:'Día de la Memoria'},
+      {date:'2025-04-02',name:'Día del Veterano'},
+      {date:'2025-04-18',name:'Viernes Santo'},
+      {date:'2025-05-01',name:'Día del Trabajo'},
+      {date:'2025-05-25',name:'Revolución de Mayo'},
+      {date:'2025-06-20',name:'Día de la Bandera'},
+      {date:'2025-07-09',name:'Día de la Independencia'},
+      {date:'2025-08-18',name:'San Martín (lunes)'},
+      {date:'2025-10-13',name:'Diversidad Cultural (lunes)'},
+      {date:'2025-11-20',name:'Soberanía Nacional'},
+      {date:'2025-12-08',name:'Inmaculada Concepción'},
+      {date:'2025-12-25',name:'Navidad'},
+      {date:'2026-01-01',name:'Año Nuevo'},
+      {date:'2026-02-16',name:'Carnaval'},
+      {date:'2026-02-17',name:'Carnaval'},
+      {date:'2026-03-24',name:'Día de la Memoria'},
+      {date:'2026-04-02',name:'Día del Veterano'},
+      {date:'2026-04-03',name:'Viernes Santo'},
+      {date:'2026-05-01',name:'Día del Trabajo'},
+      {date:'2026-05-25',name:'Revolución de Mayo'},
+      {date:'2026-06-20',name:'Día de la Bandera'},
+      {date:'2026-07-09',name:'Día de la Independencia'},
+      {date:'2026-08-17',name:'San Martín (lunes)'},
+      {date:'2026-10-12',name:'Diversidad Cultural'},
+      {date:'2026-11-20',name:'Soberanía Nacional'},
+      {date:'2026-12-08',name:'Inmaculada Concepción'},
+      {date:'2026-12-25',name:'Navidad'},
+    ]
+  },
+  'Colombia': {
+    flag:'🇨🇴', currency:'COP',
+    days:[
+      {date:'2025-01-01',name:'Año Nuevo'},
+      {date:'2025-01-06',name:'Reyes Magos'},
+      {date:'2025-03-24',name:'San José'},
+      {date:'2025-04-17',name:'Jueves Santo'},
+      {date:'2025-04-18',name:'Viernes Santo'},
+      {date:'2025-05-01',name:'Día del Trabajo'},
+      {date:'2025-06-02',name:'Ascensión del Señor'},
+      {date:'2025-06-23',name:'Corpus Christi'},
+      {date:'2025-06-30',name:'Sagrado Corazón'},
+      {date:'2025-07-07',name:'San Pedro y San Pablo'},
+      {date:'2025-07-20',name:'Independencia de Colombia'},
+      {date:'2025-08-07',name:'Batalla de Boyacá'},
+      {date:'2025-08-18',name:'Asunción de la Virgen'},
+      {date:'2025-10-13',name:'Día de la Raza'},
+      {date:'2025-11-03',name:'Todos los Santos'},
+      {date:'2025-11-17',name:'Independencia de Cartagena'},
+      {date:'2025-12-08',name:'Inmaculada Concepción'},
+      {date:'2025-12-25',name:'Navidad'},
+      {date:'2026-01-01',name:'Año Nuevo'},
+      {date:'2026-01-12',name:'Reyes Magos'},
+      {date:'2026-03-23',name:'San José'},
+      {date:'2026-04-02',name:'Jueves Santo'},
+      {date:'2026-04-03',name:'Viernes Santo'},
+      {date:'2026-05-01',name:'Día del Trabajo'},
+      {date:'2026-05-18',name:'Ascensión del Señor'},
+      {date:'2026-06-08',name:'Corpus Christi'},
+      {date:'2026-06-15',name:'Sagrado Corazón'},
+      {date:'2026-06-29',name:'San Pedro y San Pablo'},
+      {date:'2026-07-20',name:'Independencia'},
+      {date:'2026-08-07',name:'Batalla de Boyacá'},
+      {date:'2026-08-17',name:'Asunción de la Virgen'},
+      {date:'2026-10-12',name:'Día de la Raza'},
+      {date:'2026-11-02',name:'Todos los Santos'},
+      {date:'2026-11-16',name:'Independencia de Cartagena'},
+      {date:'2026-12-08',name:'Inmaculada Concepción'},
+      {date:'2026-12-25',name:'Navidad'},
+    ]
+  },
+  'Uruguay': {
+    flag:'🇺🇾', currency:'UYU',
+    days:[
+      {date:'2025-01-01',name:'Año Nuevo'},
+      {date:'2025-01-06',name:'Reyes Magos'},
+      {date:'2025-03-31',name:'Semana de Turismo'},
+      {date:'2025-04-01',name:'Semana de Turismo'},
+      {date:'2025-04-02',name:'Semana de Turismo'},
+      {date:'2025-04-03',name:'Semana de Turismo'},
+      {date:'2025-04-04',name:'Semana de Turismo'},
+      {date:'2025-04-18',name:'Viernes Santo'},
+      {date:'2025-05-01',name:'Día del Trabajo'},
+      {date:'2025-05-18',name:'Batalla de Las Piedras'},
+      {date:'2025-06-19',name:'Artigas'},
+      {date:'2025-07-18',name:'Constitución'},
+      {date:'2025-08-25',name:'Independencia'},
+      {date:'2025-10-13',name:'Día de la Raza'},
+      {date:'2025-11-02',name:'Día de los Difuntos'},
+      {date:'2025-12-25',name:'Navidad'},
+      {date:'2026-01-01',name:'Año Nuevo'},
+      {date:'2026-01-06',name:'Reyes Magos'},
+      {date:'2026-04-02',name:'Jueves Santo'},
+      {date:'2026-04-03',name:'Viernes Santo'},
+      {date:'2026-05-01',name:'Día del Trabajo'},
+      {date:'2026-05-18',name:'Batalla de Las Piedras'},
+      {date:'2026-06-19',name:'Artigas'},
+      {date:'2026-07-18',name:'Constitución'},
+      {date:'2026-08-25',name:'Independencia'},
+      {date:'2026-10-12',name:'Día de la Raza'},
+      {date:'2026-11-02',name:'Día de los Difuntos'},
+      {date:'2026-12-25',name:'Navidad'},
+    ]
+  },
+  'Perú': {
+    flag:'🇵🇪', currency:'PEN',
+    days:[
+      {date:'2025-01-01',name:'Año Nuevo'},
+      {date:'2025-04-17',name:'Jueves Santo'},
+      {date:'2025-04-18',name:'Viernes Santo'},
+      {date:'2025-05-01',name:'Día del Trabajo'},
+      {date:'2025-06-07',name:'Batalla de Arica'},
+      {date:'2025-06-29',name:'San Pedro y San Pablo'},
+      {date:'2025-07-28',name:'Independencia del Perú'},
+      {date:'2025-07-29',name:'Independencia del Perú'},
+      {date:'2025-08-06',name:'Batalla de Junín'},
+      {date:'2025-08-30',name:'Santa Rosa de Lima'},
+      {date:'2025-10-08',name:'Combate de Angamos'},
+      {date:'2025-11-01',name:'Todos los Santos'},
+      {date:'2025-12-08',name:'Inmaculada Concepción'},
+      {date:'2025-12-09',name:'Batalla de Ayacucho'},
+      {date:'2025-12-25',name:'Navidad'},
+      {date:'2026-01-01',name:'Año Nuevo'},
+      {date:'2026-04-02',name:'Jueves Santo'},
+      {date:'2026-04-03',name:'Viernes Santo'},
+      {date:'2026-05-01',name:'Día del Trabajo'},
+      {date:'2026-06-07',name:'Batalla de Arica'},
+      {date:'2026-06-29',name:'San Pedro y San Pablo'},
+      {date:'2026-07-28',name:'Independencia'},
+      {date:'2026-07-29',name:'Independencia'},
+      {date:'2026-08-06',name:'Batalla de Junín'},
+      {date:'2026-08-30',name:'Santa Rosa de Lima'},
+      {date:'2026-10-08',name:'Combate de Angamos'},
+      {date:'2026-11-01',name:'Todos los Santos'},
+      {date:'2026-12-08',name:'Inmaculada Concepción'},
+      {date:'2026-12-09',name:'Batalla de Ayacucho'},
+      {date:'2026-12-25',name:'Navidad'},
+    ]
+  },
+  'Bolivia': {
+    flag:'🇧🇴', currency:'BOB',
+    days:[
+      {date:'2025-01-01',name:'Año Nuevo'},
+      {date:'2025-01-22',name:'Estado Plurinacional'},
+      {date:'2025-02-17',name:'Carnaval'},
+      {date:'2025-02-18',name:'Carnaval'},
+      {date:'2025-04-18',name:'Viernes Santo'},
+      {date:'2025-05-01',name:'Día del Trabajo'},
+      {date:'2025-06-19',name:'Corpus Christi'},
+      {date:'2025-06-21',name:'Año Nuevo Aymara'},
+      {date:'2025-08-06',name:'Independencia de Bolivia'},
+      {date:'2025-11-02',name:'Día de los Difuntos'},
+      {date:'2025-12-25',name:'Navidad'},
+      {date:'2026-01-01',name:'Año Nuevo'},
+      {date:'2026-01-22',name:'Estado Plurinacional'},
+      {date:'2026-02-16',name:'Carnaval'},
+      {date:'2026-02-17',name:'Carnaval'},
+      {date:'2026-04-03',name:'Viernes Santo'},
+      {date:'2026-05-01',name:'Día del Trabajo'},
+      {date:'2026-06-04',name:'Corpus Christi'},
+      {date:'2026-06-21',name:'Año Nuevo Aymara'},
+      {date:'2026-08-06',name:'Independencia de Bolivia'},
+      {date:'2026-11-02',name:'Día de los Difuntos'},
+      {date:'2026-12-25',name:'Navidad'},
+    ]
+  }
+};
+
+// ============================================================
+// HOLIDAYS HELPERS
+// ============================================================
+function getWeekRange() {
+  var today = new Date();
+  var day = today.getDay(); // 0=Sun
+  var monday = new Date(today);
+  monday.setDate(today.getDate() - (day === 0 ? 6 : day - 1));
+  var sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  return { start: monday, end: sunday };
+}
+
+function toYMD(d) {
+  return d.getFullYear() + '-' +
+    String(d.getMonth()+1).padStart(2,'0') + '-' +
+    String(d.getDate()).padStart(2,'0');
+}
+
+function isThisWeek(dateStr) {
+  var w = getWeekRange();
+  var d = new Date(dateStr + 'T12:00:00');
+  return d >= w.start && d <= w.end;
+}
+
+function isThisMonth(dateStr) {
+  var now = new Date();
+  var d = new Date(dateStr + 'T12:00:00');
+  return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+}
+
+function dayName(dateStr) {
+  var days = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  var d = new Date(dateStr + 'T12:00:00');
+  return days[d.getDay()];
+}
+
+function shortDate(dateStr) {
+  var months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  var d = new Date(dateStr + 'T12:00:00');
+  return d.getDate() + ' ' + months[d.getMonth()];
+}
+
+var COUNTRY_COLORS = {
+  'Chile':    '#EF4444',
+  'México':   '#10B981',
+  'Brasil':   '#3B82F6',
+  'Argentina':'#6D28D9',
+  'Colombia': '#F59E0B',
+  'Uruguay':  '#06B6D4',
+  'Perú':     '#F97316',
+  'Bolivia':  '#EC4899',
+};
+
+// ============================================================
+// RENDER: HOLIDAYS
+// ============================================================
+function renderHolidays(el) {
+  var today = new Date();
+  var todayStr = toYMD(today);
+  var selectedCountry = 'all';
+  var selectedMonth = today.getMonth();
+  var selectedYear = today.getFullYear();
+
+  function build() {
+    var countries = Object.keys(HOLIDAYS);
+    var months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+    // This-week alerts across ALL countries
+    var weekAlerts = [];
+    countries.forEach(function(c) {
+      HOLIDAYS[c].days.forEach(function(h) {
+        if (isThisWeek(h.date)) weekAlerts.push({country:c, flag:HOLIDAYS[c].flag, date:h.date, name:h.name});
+      });
+    });
+    weekAlerts.sort(function(a,b){ return a.date.localeCompare(b.date); });
+
+    var weekBanner = '';
+    if (weekAlerts.length > 0) {
+      var cards = weekAlerts.map(function(a) {
+        var color = COUNTRY_COLORS[a.country] || '#6D28D9';
+        return '<div style="background:#fff;border:1px solid var(--border);border-left:3px solid ' + color + ';border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px">' +
+          '<div style="font-size:22px">' + a.flag + '</div>' +
+          '<div><div style="font-weight:600;font-size:13px">' + a.name + '</div>' +
+          '<div style="font-size:11px;color:var(--tx2);margin-top:2px">' + a.country + ' · ' + dayName(a.date) + ' ' + shortDate(a.date) + '</div></div>' +
+          '<div style="margin-left:auto;background:' + color + '20;color:' + color + ';font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px">' + dayName(a.date) + '</div></div>';
+      }).join('');
+      weekBanner = '<div style="background:linear-gradient(135deg,rgba(109,40,217,0.06),rgba(139,92,246,0.04));border:1px solid rgba(109,40,217,0.15);border-radius:12px;padding:16px 18px;margin-bottom:20px">' +
+        '<div style="font-size:12px;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">📅 Esta semana en LATAM (' + weekAlerts.length + ' feriado' + (weekAlerts.length>1?'s':'') + ')</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px">' + cards + '</div></div>';
+    } else {
+      weekBanner = '<div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:20px;color:var(--tx2);font-size:13px">' +
+        '📅 <strong>Esta semana</strong> no hay feriados en ningún país de LATAM.</div>';
+    }
+
+    // Country filter pills
+    var pillsHtml = '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">' +
+      '<button class="fpill ' + (selectedCountry==='all'?'active':'') + '" onclick="window._hFilter(\'all\',this)">Todos</button>' +
+      countries.map(function(c){
+        return '<button class="fpill ' + (selectedCountry===c?'active':'') + '" onclick="window._hFilter(\'' + c + '\',this)">' + HOLIDAYS[c].flag + ' ' + c + '</button>';
+      }).join('') + '</div>';
+
+    // Month selector
+    var monthSel = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">' +
+      '<button class="btn btn-ghost btn-sm" onclick="window._hMonth(-1)">←</button>' +
+      '<span style="font-weight:600;font-size:14px;min-width:130px;text-align:center">' + months[selectedMonth] + ' ' + selectedYear + '</span>' +
+      '<button class="btn btn-ghost btn-sm" onclick="window._hMonth(1)">→</button></div>';
+
+    // Build calendar month grid
+    var firstDay = new Date(selectedYear, selectedMonth, 1);
+    var lastDay  = new Date(selectedYear, selectedMonth + 1, 0);
+    var startDow = firstDay.getDay(); // 0=Sun; shift to Mon-start
+    var startOffset = (startDow === 0 ? 6 : startDow - 1);
+
+    // Gather holidays for this month
+    var monthHolidays = {}; // date -> [{country, name, flag}]
+    var cList = selectedCountry === 'all' ? countries : [selectedCountry];
+    cList.forEach(function(c) {
+      HOLIDAYS[c].days.forEach(function(h) {
+        var d = new Date(h.date + 'T12:00:00');
+        if (d.getMonth() === selectedMonth && d.getFullYear() === selectedYear) {
+          if (!monthHolidays[h.date]) monthHolidays[h.date] = [];
+          monthHolidays[h.date].push({country:c, flag:HOLIDAYS[c].flag, name:h.name, color: COUNTRY_COLORS[c]||'#6D28D9'});
+        }
+      });
+    });
+
+    var dayLabels = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+    var calGrid = '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:20px">';
+    dayLabels.forEach(function(d){
+      calGrid += '<div style="text-align:center;font-size:11px;font-weight:600;color:var(--tx3);padding:6px 0;text-transform:uppercase">' + d + '</div>';
+    });
+
+    // Empty cells before month start
+    for (var i = 0; i < startOffset; i++) calGrid += '<div></div>';
+
+    for (var day = 1; day <= lastDay.getDate(); day++) {
+      var dStr = selectedYear + '-' + String(selectedMonth+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
+      var isToday = dStr === todayStr;
+      var hols = monthHolidays[dStr] || [];
+      var dotHtml = hols.slice(0,3).map(function(h){
+        return '<div style="width:6px;height:6px;border-radius:50%;background:' + h.color + ';flex-shrink:0"></div>';
+      }).join('');
+      var holTip = hols.length > 0 ? ' title="' + hols.map(function(h){ return h.country+': '+h.name; }).join(' | ') + '"' : '';
+      calGrid += '<div' + holTip + ' style="border:1px solid ' + (isToday?'var(--ac)':hols.length?'var(--border)':'var(--border)') + ';' +
+        'background:' + (isToday?'rgba(109,40,217,0.08)':hols.length?'#FAFAF8':'#fff') + ';' +
+        'border-radius:8px;padding:6px;min-height:62px;cursor:' + (hols.length?'pointer':'default') + ';transition:all .15s;' +
+        (hols.length?'box-shadow:0 1px 4px rgba(0,0,0,0.06)':'') + '"' +
+        (hols.length ? ' onclick="window._hDayClick(\'' + dStr + '\')"' : '') + '>' +
+        '<div style="font-size:12px;font-weight:' + (isToday?'700':'500') + ';color:' + (isToday?'var(--ac)':'var(--tx)') + '">' + day + '</div>' +
+        (hols.length ? '<div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:4px">' + dotHtml + '</div>' : '') +
+        (hols.length===1 ? '<div style="font-size:10px;color:var(--tx2);margin-top:3px;line-height:1.3;overflow:hidden">' + hols[0].flag + ' ' + hols[0].name + '</div>' : '') +
+        (hols.length>1 ? '<div style="font-size:10px;color:var(--tx2);margin-top:3px">' + hols.length + ' feriados</div>' : '') +
+        '</div>';
+    }
+    calGrid += '</div>';
+
+    // List view for selected month
+    var listItems = Object.keys(monthHolidays).sort().map(function(d) {
+      var hols = monthHolidays[d];
+      return hols.map(function(h){
+        return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">' +
+          '<div style="width:44px;text-align:center;flex-shrink:0">' +
+          '<div style="font-size:18px;font-weight:700;color:var(--tx);line-height:1">' + new Date(d+'T12:00:00').getDate() + '</div>' +
+          '<div style="font-size:10px;color:var(--tx3)">' + dayName(d) + '</div></div>' +
+          '<div style="width:2px;height:36px;border-radius:1px;background:' + h.color + ';flex-shrink:0"></div>' +
+          '<div style="flex:1"><div style="font-weight:500;font-size:13px">' + h.name + '</div>' +
+          '<div style="font-size:12px;color:var(--tx2);margin-top:2px">' + h.flag + ' ' + h.country + '</div></div>' +
+          '<div style="font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;background:' + h.color + '18;color:' + h.color + '">' + shortDate(d) + '</div></div>';
+      }).join('');
+    }).join('');
+
+    var listView = listItems ? '<div class="card"><div class="card-title">Lista del mes</div>' + listItems + '</div>'
+      : '<div class="card" style="color:var(--tx3);text-align:center;padding:24px;font-size:13px">Sin feriados este mes para los países seleccionados</div>';
+
+    el.innerHTML = '<div class="page-header"><h1 class="page-title">Feriados LATAM</h1>' +
+      '<p class="page-sub">Chile · México · Brasil · Argentina · Colombia · Uruguay · Perú · Bolivia · 2025–2026</p></div>' +
+      '<div class="page-body">' +
+      weekBanner +
+      '<div class="two-col" style="align-items:start">' +
+      '<div>' +
+      '<div class="card" style="margin-bottom:0">' +
+      '<div class="card-title">Calendario</div>' +
+      pillsHtml + monthSel + calGrid +
+      '</div></div>' +
+      '<div>' + listView + '</div>' +
+      '</div></div>';
+
+    // Re-bind interactive handlers
+    window._hFilter = function(c, btn) {
+      selectedCountry = c;
+      build();
+    };
+    window._hMonth = function(dir) {
+      selectedMonth += dir;
+      if (selectedMonth > 11) { selectedMonth = 0; selectedYear++; }
+      if (selectedMonth < 0)  { selectedMonth = 11; selectedYear--; }
+      build();
+    };
+    window._hDayClick = function(dStr) {
+      var hols = monthHolidays[dStr] || [];
+      if (!hols.length) return;
+      var body = hols.map(function(h){
+        return '<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">' +
+          '<div style="font-size:28px">' + h.flag + '</div>' +
+          '<div><div style="font-weight:600;font-size:15px">' + h.name + '</div>' +
+          '<div style="font-size:13px;color:var(--tx2);margin-top:2px">' + h.country + ' · ' + dayName(dStr) + ' ' + shortDate(dStr) + '</div></div></div>';
+      }).join('');
+      openDrawer('<div class="drawer-header"><div><div class="drawer-name">📅 ' + shortDate(dStr) + '</div>' +
+        '<div class="drawer-role">' + hols.length + ' feriado' + (hols.length>1?'s':'') + ' en LATAM</div></div>' +
+        '<button class="drawer-close" onclick="closeDrawer()">×</button></div>' +
+        '<div class="drawer-body">' + body + '</div>');
+    };
+  }
+
+  build();
+}
+
+// ============================================================
+// HOLIDAYS WIDGET for Dashboard (this week)
+// ============================================================
+function holidaysWidget() {
+  var weekAlerts = [];
+  Object.keys(HOLIDAYS).forEach(function(c) {
+    HOLIDAYS[c].days.forEach(function(h) {
+      if (isThisWeek(h.date)) weekAlerts.push({country:c, flag:HOLIDAYS[c].flag, date:h.date, name:h.name});
+    });
+  });
+  weekAlerts.sort(function(a,b){ return a.date.localeCompare(b.date); });
+  if (!weekAlerts.length) return '<div class="card" style="margin-bottom:0"><div class="card-title">📅 Feriados esta semana</div><div style="color:var(--tx3);font-size:13px;text-align:center;padding:8px">Sin feriados esta semana en LATAM</div></div>';
+  var items = weekAlerts.map(function(a) {
+    var color = COUNTRY_COLORS[a.country] || '#6D28D9';
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">' +
+      '<div style="font-size:18px">' + a.flag + '</div>' +
+      '<div style="flex:1"><div style="font-size:13px;font-weight:500">' + a.name + '</div>' +
+      '<div style="font-size:11px;color:var(--tx2)">' + a.country + ' · ' + dayName(a.date) + ' ' + shortDate(a.date) + '</div></div>' +
+      '<div style="width:8px;height:8px;border-radius:50%;background:' + color + '"></div></div>';
+  }).join('');
+  return '<div class="card" style="margin-bottom:0"><div class="card-title" style="cursor:pointer" onclick="navigate(\'holidays\')">📅 Feriados esta semana <span style="font-size:11px;color:var(--ac);margin-left:4px">Ver todos →</span></div>' + items + '</div>';
+}
+
+
+// ============================================================
+// RENDER: RAISES — Gestor de Aumentos
+// ============================================================
+function renderRaises(el) {
+  var role = currentUser.role;
+  var isAdmin = role === 'admin';
+  var isManager = role === 'manager';
+
+  // Admin sees all; manager sees only their team's raises
+  var visibleRaises = isAdmin ? RAISES : RAISES.filter(function(r){
+    return r.requested_by === currentUser.name;
+  });
+
+  var pendingRaises = visibleRaises.filter(function(r){ return r.status === 'pending'; });
+  var historyRaises = visibleRaises.filter(function(r){ return r.status !== 'pending'; });
+
+  // Form (managers only)
+  var formHtml = '';
+  if (isManager) {
+    var myTeam = EMPLOYEES.filter(function(e){ return e.manager === currentUser.name; });
+    var empOptions = myTeam.map(function(e){
+      return '<option value="' + e.id + '" data-salary="' + e.salary + '" data-currency="' + e.currency + '" data-name="' + e.name + '" data-company="' + e.company + '" data-area="' + e.area + '">' + e.name + ' (' + e.role + ')</option>';
+    }).join('');
+
+    formHtml = '<div class="card" style="margin-bottom:20px">' +
+      '<div class="card-title">📈 Nueva solicitud de aumento</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">' +
+      '<div><label style="font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Empleado</label>' +
+      '<select id="raiseEmp" onchange="updateRaisePreview()" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);outline:none">' +
+      '<option value="">Seleccionar...</option>' + empOptions + '</select></div>' +
+      '<div><label style="font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Salario propuesto</label>' +
+      '<input type="number" id="raiseSalary" placeholder="0" oninput="updateRaisePreview()" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);outline:none"/></div>' +
+      '</div>' +
+      '<div style="margin-bottom:14px"><label style="font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Justificación</label>' +
+      '<textarea id="raiseReason" rows="3" placeholder="Describe el motivo del aumento: performance, cambio de rol, retención, ajuste de mercado..." style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);outline:none;resize:none"></textarea></div>' +
+      '<div id="raisePreview" style="display:none;background:var(--bg);border-radius:10px;padding:14px 16px;margin-bottom:14px;border-left:3px solid var(--green)">' +
+      '<div style="font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Preview del cambio</div>' +
+      '<div style="display:flex;align-items:center;gap:16px">' +
+      '<div><div style="font-size:11px;color:var(--tx2)">Actual</div><div id="prevCurrent" style="font-size:18px;font-weight:700;color:var(--tx)"></div></div>' +
+      '<div style="font-size:20px;color:var(--tx3)">→</div>' +
+      '<div><div style="font-size:11px;color:var(--tx2)">Propuesto</div><div id="prevProposed" style="font-size:18px;font-weight:700;color:var(--green)"></div></div>' +
+      '<div id="prevPct" style="margin-left:auto;font-size:14px;font-weight:700;padding:4px 12px;border-radius:20px;background:#F0FDF4;color:#166534"></div>' +
+      '</div></div>' +
+      '<button class="btn btn-primary" onclick="submitRaise()">📤 Enviar al comité de compensación</button>' +
+      '</div>';
+  }
+
+  // Pending cards
+  var pendingHtml = pendingRaises.length ? pendingRaises.map(function(r){
+    var pct = r.pct.toFixed(1);
+    return '<div style="border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:10px;padding:16px;margin-bottom:10px;background:#fff">' +
+      '<div style="display:flex;align-items:flex-start;gap:12px">' +
+      '<div class="avatar">' + initials(r.employee_name) + '</div>' +
+      '<div style="flex:1">' +
+      '<div style="font-weight:600;font-size:14px">' + r.employee_name + ' <span style="font-weight:400;font-size:12px;color:var(--tx2)">· ' + r.area + ' · ' + coTag(r.company) + '</span></div>' +
+      '<div style="display:flex;align-items:center;gap:10px;margin:8px 0">' +
+      '<span style="font-size:13px;color:var(--tx2)">' + fmtNum(r.current_salary) + ' ' + r.current_currency + '</span>' +
+      '<span style="color:var(--tx3)">→</span>' +
+      '<span style="font-size:15px;font-weight:700;color:var(--green)">' + fmtNum(r.proposed_salary) + ' ' + r.proposed_currency + '</span>' +
+      '<span style="background:#F0FDF4;color:#166534;font-size:12px;font-weight:600;padding:2px 8px;border-radius:20px">+' + pct + '%</span>' +
+      '</div>' +
+      '<div style="font-size:12px;color:var(--tx2);background:var(--bg);padding:8px 10px;border-radius:6px;margin-bottom:8px">"' + r.reason + '"</div>' +
+      '<div style="font-size:11px;color:var(--tx3)">Solicitado por <strong>' + r.requested_by + '</strong> · ' + fmtDate(r.requested_at) + '</div>' +
+      '</div>' +
+      (isAdmin ? '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">' +
+        '<button class="btn btn-success btn-sm" onclick="approveRaise(\'' + r.id + '\',\'approved\')">✓ Aprobar</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="approveRaise(\'' + r.id + '\',\'rejected\')">✗ Rechazar</button>' +
+        '</div>' : '<span class="badge b-gold" style="margin-left:auto;flex-shrink:0">Pendiente</span>') +
+      '</div></div>';
+  }).join('') : '<div style="color:var(--tx3);font-size:13px;text-align:center;padding:20px">Sin solicitudes pendientes</div>';
+
+  var histRows = historyRaises.map(function(r){
+    return '<tr><td><div class="name-cell"><div class="avatar">' + initials(r.employee_name) + '</div>' + r.employee_name + '</div></td>' +
+      '<td>' + coTag(r.company) + '</td>' +
+      '<td style="font-size:12px">' + fmtNum(r.current_salary) + ' ' + r.current_currency + '</td>' +
+      '<td style="font-weight:600;color:var(--green)">' + fmtNum(r.proposed_salary) + ' ' + r.proposed_currency + '</td>' +
+      '<td><span style="font-size:12px;font-weight:600;color:var(--green)">+' + r.pct.toFixed(1) + '%</span></td>' +
+      '<td style="font-size:12px;color:var(--tx2);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + r.reason + '</td>' +
+      '<td style="font-size:12px;color:var(--tx2)">' + r.requested_by + '</td>' +
+      '<td><span class="badge ' + (r.status==='approved'?'b-green':'b-red') + '">' + (r.status==='approved'?'Aprobado':'Rechazado') + '</span></td></tr>';
+  }).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--tx3);padding:24px">Sin historial</td></tr>';
+
+  el.innerHTML = '<div class="page-header"><h1 class="page-title">Gestor de Aumentos</h1>' +
+    '<p class="page-sub">' + (isAdmin ? 'Vista completa · las notificaciones van al canal #people-comp en Slack' : 'Solicitudes de tu equipo · se notifica al canal #people-comp') + '</p></div>' +
+    '<div class="page-body">' +
+    formHtml +
+    '<div class="card" style="margin-bottom:20px"><div class="card-title">⏳ Pendientes de aprobación (' + pendingRaises.length + ')</div>' + pendingHtml + '</div>' +
+    '<div class="tbl-wrap"><div class="tbl-top"><h3>Historial de aumentos</h3></div>' +
+    '<table><thead><tr><th>Empleado</th><th>Empresa</th><th>Salario actual</th><th>Propuesto</th><th>%</th><th>Motivo</th><th>Solicitado por</th><th>Estado</th></tr></thead>' +
+    '<tbody>' + histRows + '</tbody></table></div></div>';
+}
+
+function updateRaisePreview() {
+  var sel = document.getElementById('raiseEmp');
+  var salInput = document.getElementById('raiseSalary');
+  var preview = document.getElementById('raisePreview');
+  if (!sel || !salInput || !preview) return;
+  var opt = sel.options[sel.selectedIndex];
+  var proposed = parseFloat(salInput.value);
+  if (!opt.value || !proposed) { preview.style.display='none'; return; }
+  var current = parseFloat(opt.dataset.salary);
+  var currency = opt.dataset.currency;
+  var pct = ((proposed - current) / current * 100).toFixed(1);
+  if (proposed <= current) { preview.style.display='none'; return; }
+  document.getElementById('prevCurrent').textContent = fmtNum(current) + ' ' + currency;
+  document.getElementById('prevProposed').textContent = fmtNum(proposed) + ' ' + currency;
+  document.getElementById('prevPct').textContent = '+' + pct + '%';
+  preview.style.display = 'block';
+}
+
+async function submitRaise() {
+  var sel    = document.getElementById('raiseEmp');
+  var salary = parseFloat(document.getElementById('raiseSalary').value);
+  var reason = document.getElementById('raiseReason').value.trim();
+  if (!sel.value || !salary || !reason) { showToast('Completa todos los campos','error'); return; }
+  var opt = sel.options[sel.selectedIndex];
+  var current = parseFloat(opt.dataset.salary);
+  if (salary <= current) { showToast('El salario propuesto debe ser mayor al actual','error'); return; }
+  var pct = ((salary - current) / current * 100);
+  var newR = {
+    id: 'r'+Date.now(), employee_id: opt.value, employee_name: opt.dataset.name,
+    company: opt.dataset.company, area: opt.dataset.area,
+    current_salary: current, current_currency: opt.dataset.currency,
+    proposed_salary: salary, proposed_currency: opt.dataset.currency,
+    pct: pct, reason: reason, requested_by: currentUser.name,
+    requested_at: new Date().toISOString().split('T')[0],
+    status: 'pending', approved_at: null, approved_by: null
+  };
+  RAISES.unshift(newR);
+
+  var msg = '📈 *Nueva solicitud de aumento salarial*\n' +
+    '• Empleado: ' + opt.dataset.name + ' (' + opt.dataset.company + ' · ' + opt.dataset.area + ')\n' +
+    '• Salario actual: ' + fmtNum(current) + ' ' + opt.dataset.currency + '\n' +
+    '• Salario propuesto: ' + fmtNum(salary) + ' ' + opt.dataset.currency + ' (+' + pct.toFixed(1) + '%)\n' +
+    '• Justificación: ' + reason + '\n' +
+    '• Solicitado por: ' + currentUser.name + '\n' +
+    '_Por favor revisa en el People Hub para aprobar o rechazar._';
+  await fetch(COMP_SLACK_WEBHOOK, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text:msg}) }).catch(function(){});
+  showToast('Solicitud enviada al comité de compensación vía Slack ✓','success');
+  renderRaises(document.getElementById('mainContent'));
+}
+
+async function approveRaise(id, status) {
+  var r = RAISES.find(function(x){ return x.id===id; });
+  if (!r) return;
+  r.status = status;
+  r.approved_at = new Date().toISOString().split('T')[0];
+  r.approved_by = currentUser.name;
+
+  if (status === 'approved') {
+    var emp = EMPLOYEES.find(function(e){ return e.id === r.employee_id; });
+    if (emp) {
+      emp.salaryHistory.push({ date: r.approved_at, amount: r.proposed_salary, currency: r.proposed_currency, pct: r.pct, reason: 'Aumento aprobado por comité' });
+      emp.salary = r.proposed_salary;
+    }
+  }
+
+  var emoji = status === 'approved' ? '✅' : '❌';
+  var msg = emoji + ' *Aumento salarial ' + (status==='approved'?'APROBADO':'RECHAZADO') + '*\n' +
+    '• Empleado: ' + r.employee_name + '\n' +
+    '• Monto: ' + fmtNum(r.proposed_salary) + ' ' + r.proposed_currency + ' (+' + r.pct.toFixed(1) + '%)\n' +
+    '• Procesado por: ' + currentUser.name;
+  await fetch(COMP_SLACK_WEBHOOK, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text:msg}) }).catch(function(){});
+  showToast('Aumento ' + (status==='approved'?'aprobado':'rechazado') + ' · Slack notificado ✓','success');
+  renderRaises(document.getElementById('mainContent'));
+}
+
+// ============================================================
+// RENDER: ORG CHART
+// ============================================================
+function renderOrgChart(el) {
+  var selectedCo = 'all';
+
+  function build() {
+    var emps = selectedCo === 'all' ? EMPLOYEES : EMPLOYEES.filter(function(e){ return e.company === selectedCo; });
+
+    // Build hierarchy: find roots (no manager_id or manager_id not in emps)
+    var empIds = emps.map(function(e){ return e.id; });
+    var roots = emps.filter(function(e){ return !e.manager_id || empIds.indexOf(e.manager_id) === -1; });
+
+    function buildNode(emp, depth) {
+      var reports = emps.filter(function(e){ return e.manager_id === emp.id; });
+      var avg = avgPerf(emp);
+      var tier = perfTier(avg);
+      var coColor = emp.company === 'Draftea' ? 'var(--ac)' : '#1D4ED8';
+      var nodeHtml =
+        '<div style="display:flex;flex-direction:column;align-items:center;position:relative">' +
+        '<div onclick="openEmpDrawer(\'' + emp.id + '\')" style="' +
+          'background:#fff;border:2px solid ' + coColor + ';border-radius:12px;padding:12px 16px;' +
+          'min-width:140px;max-width:160px;text-align:center;cursor:pointer;' +
+          'box-shadow:0 2px 8px rgba(0,0,0,0.08);transition:all .2s;position:relative;' +
+          '" onmouseover="this.style.boxShadow=\'0 4px 16px rgba(0,0,0,0.15)\'" onmouseout="this.style.boxShadow=\'0 2px 8px rgba(0,0,0,0.08)\'">' +
+          '<div style="width:36px;height:36px;border-radius:50%;background:' + coColor + ';color:#fff;' +
+            'display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;margin:0 auto 8px">' +
+            initials(emp.name) + '</div>' +
+          '<div style="font-size:12px;font-weight:600;color:var(--tx);line-height:1.3;margin-bottom:3px">' + emp.name.split(' ')[0] + ' ' + (emp.name.split(' ')[1]||'') + '</div>' +
+          '<div style="font-size:10px;color:var(--tx2);line-height:1.3;margin-bottom:5px">' + emp.role + '</div>' +
+
+        '</div>';
+
+      if (reports.length > 0) {
+        nodeHtml += '<div style="width:2px;height:20px;background:var(--border)"></div>' +
+          '<div style="display:flex;gap:16px;position:relative">';
+        // Top connector line
+        if (reports.length > 1) {
+          nodeHtml += '<div style="position:absolute;top:0;left:50%;transform:translateX(-50%);' +
+            'border-top:2px solid var(--border);width:calc(100% - 80px);height:0"></div>';
+        }
+        reports.forEach(function(child, i) {
+          nodeHtml += '<div style="display:flex;flex-direction:column;align-items:center">' +
+            '<div style="width:2px;height:20px;background:var(--border)"></div>' +
+            buildNode(child, depth+1) + '</div>';
+        });
+        nodeHtml += '</div>';
+      }
+      nodeHtml += '</div>';
+      return nodeHtml;
+    }
+
+    var treeHtml = '<div style="display:flex;gap:40px;justify-content:center;flex-wrap:wrap;padding:20px 0">';
+    roots.forEach(function(r){ treeHtml += buildNode(r, 0); });
+    treeHtml += '</div>';
+
+    var pills = '<div style="display:flex;gap:6px;margin-bottom:20px">' +
+      ['all','Draftea','Pitaco'].map(function(c){
+        return '<button class="fpill ' + (selectedCo===c?'active':'') + '" onclick="window._ocFilter(\'' + c + '\')">' +
+          (c==='all'?'Todas las empresas':c==='Draftea'?'🟣 Draftea':'🔵 Pitaco') + '</button>';
+      }).join('') + '</div>';
+
+    var legend = '<div style="display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap">' +
+      '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--tx2)"><div style="width:12px;height:12px;border-radius:50%;background:var(--ac)"></div>Draftea</div>' +
+      '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--tx2)"><div style="width:12px;height:12px;border-radius:50%;background:#1D4ED8"></div>Pitaco</div>' +
+      '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--tx2)"><div style="background:#F0FDF4;color:#166634;font-size:10px;padding:1px 6px;border-radius:10px">8.5+</div>Top Performer</div>' +
+      '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--tx2)"><span style="font-size:11px">Click en card → ver perfil</span></div>' +
+      '</div>';
+
+    el.innerHTML = '<div class="page-header"><h1 class="page-title">Org Chart</h1><p class="page-sub">Estructura jerárquica · haz click en cualquier persona para ver su perfil</p></div>' +
+      '<div class="page-body">' + pills + legend +
+      '<div style="overflow-x:auto;padding-bottom:20px">' + treeHtml + '</div></div>';
+
+    window._ocFilter = function(co) { selectedCo = co; build(); };
+  }
+
+  build();
+}
+
+// ============================================================
+// RENDER: ANNIVERSARIES & BIRTHDAYS
+// ============================================================
+function renderAnniversaries(el) {
+  var today = new Date();
+  var todayMD = (today.getMonth()+1) + '-' + today.getDate();
+
+  function daysUntil(dateStr) {
+    var parts = dateStr.split('-');
+    var thisYear = new Date(today.getFullYear(), parseInt(parts[1])-1, parseInt(parts[2]));
+    if (thisYear < today) thisYear.setFullYear(today.getFullYear()+1);
+    return Math.ceil((thisYear - today) / (1000*60*60*24));
+  }
+
+  function yearsOn(dateStr, type) {
+    var d = new Date(dateStr + 'T12:00:00');
+    return today.getFullYear() - d.getFullYear();
+  }
+
+  function isThisWeekMD(dateStr) {
+    var parts = dateStr.split('-');
+    var d = new Date(today.getFullYear(), parseInt(parts[1])-1, parseInt(parts[2]));
+    var diff = (d - today) / (1000*60*60*24);
+    return diff >= -1 && diff <= 6;
+  }
+
+  function isThisMonthMD(dateStr) {
+    var parts = dateStr.split('-');
+    return parseInt(parts[1]) === (today.getMonth()+1);
+  }
+
+  // Build combined list
+  var events = [];
+  EMPLOYEES.forEach(function(e) {
+    if (e.birthday) {
+      events.push({ type:'birthday', name:e.name, company:e.company, role:e.role, date:e.birthday,
+        du: daysUntil(e.birthday), thisWeek: isThisWeekMD(e.birthday), thisMonth: isThisMonthMD(e.birthday), emp: e });
+    }
+    if (e.start) {
+      var years = yearsOn(e.start);
+      if (years > 0) {
+        events.push({ type:'anniversary', name:e.name, company:e.company, role:e.role, date:e.start,
+          du: daysUntil(e.start.slice(5)), years: years, thisWeek: isThisWeekMD(e.start.slice(5)), thisMonth: isThisMonthMD(e.start.slice(5)), emp: e });
+      }
+    }
+  });
+  events.sort(function(a,b){ return a.du - b.du; });
+
+  var thisWeek = events.filter(function(e){ return e.thisWeek; });
+  var thisMonth = events.filter(function(e){ return e.thisMonth && !e.thisWeek; });
+  var upcoming  = events.filter(function(e){ return !e.thisMonth && e.du <= 60; });
+
+  function eventCard(ev, big) {
+    var icon = ev.type === 'birthday' ? '🎂' : '🎉';
+    var color = ev.type === 'birthday' ? '#EC4899' : 'var(--ac)';
+    var label = ev.type === 'birthday' ? 'Cumpleaños' : ev.years + ' año' + (ev.years===1?'':'s') + ' en ' + ev.company;
+    var duLabel = ev.du === 0 ? '¡HOY! 🎊' : ev.du === 1 ? 'Mañana' : 'En ' + ev.du + ' días';
+    var duColor = ev.du === 0 ? '#DC2626' : ev.du <= 3 ? '#D97706' : 'var(--tx2)';
+    if (big) {
+      return '<div style="background:#fff;border:1px solid var(--border);border-left:3px solid ' + color + ';border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px">' +
+        '<div style="font-size:28px">' + icon + '</div>' +
+        '<div class="avatar" style="background:' + color + '">' + initials(ev.name) + '</div>' +
+        '<div style="flex:1">' +
+        '<div style="font-weight:600;font-size:14px">' + ev.name + '</div>' +
+        '<div style="font-size:12px;color:var(--tx2);margin-top:2px">' + label + ' · ' + ev.role + ' · ' + coTag(ev.company) + '</div>' +
+        '</div>' +
+        '<div style="font-weight:700;font-size:13px;color:' + duColor + '">' + duLabel + '</div></div>';
+    }
+    return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">' +
+      '<div style="font-size:18px">' + icon + '</div>' +
+      '<div class="avatar" style="width:26px;height:26px;font-size:10px;background:' + color + '">' + initials(ev.name) + '</div>' +
+      '<div style="flex:1"><div style="font-size:13px;font-weight:500">' + ev.name + '</div>' +
+      '<div style="font-size:11px;color:var(--tx2)">' + label + '</div></div>' +
+      '<div style="font-size:12px;font-weight:600;color:' + duColor + '">' + duLabel + '</div></div>';
+  }
+
+  var weekHtml = thisWeek.length ?
+    '<div class="card" style="margin-bottom:16px">' +
+    '<div class="card-title">🎊 Esta semana (' + thisWeek.length + ')</div>' +
+    thisWeek.map(function(ev){ return eventCard(ev, true); }).join('<div style="height:8px"></div>') +
+    '</div>' :
+    '<div class="card" style="margin-bottom:16px;color:var(--tx3);font-size:13px;text-align:center;padding:20px">Sin cumpleaños ni aniversarios esta semana</div>';
+
+  var monthHtml = thisMonth.length ?
+    '<div class="card" style="margin-bottom:16px">' +
+    '<div class="card-title">📅 Este mes</div>' +
+    thisMonth.map(function(ev){ return eventCard(ev, false); }).join('') +
+    '</div>' : '';
+
+  var upcomingHtml = upcoming.length ?
+    '<div class="card">' +
+    '<div class="card-title">🗓 Próximos 60 días</div>' +
+    upcoming.map(function(ev){ return eventCard(ev, false); }).join('') +
+    '</div>' : '';
+
+  // Stats
+  var bdays = events.filter(function(e){ return e.type==='birthday'; }).length;
+  var anivs = events.filter(function(e){ return e.type==='anniversary'; }).length;
+
+  el.innerHTML = '<div class="page-header"><h1 class="page-title">Aniversarios & Cumpleaños</h1>' +
+    '<p class="page-sub">Próximos eventos · Draftea + Pitaco</p></div>' +
+    '<div class="page-body">' +
+    '<div class="kpi-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">' +
+    kpi('purple','Esta semana', thisWeek.length, 'eventos') +
+    kpi('gold','Este mes', thisMonth.length + thisWeek.length, 'en total') +
+    kpi('green','Próximos 60d', upcoming.length, 'eventos') +
+    '</div>' +
+    weekHtml + monthHtml + upcomingHtml +
+    '</div>';
+}
+
+
+// ============================================================
+// ANNIVERSARIES WIDGET (dashboard)
+// ============================================================
+function anniversariesWidget() {
+  var today = new Date();
+  function daysUntil(dateStr) {
+    var parts = dateStr.split('-');
+    var d = new Date(today.getFullYear(), parseInt(parts[0])-1, parseInt(parts[1]));
+    if (d < today) d.setFullYear(today.getFullYear()+1);
+    return Math.ceil((d - today)/(1000*60*60*24));
+  }
+  function isThisWeekMD(dateStr) {
+    var parts = dateStr.split('-');
+    var d = new Date(today.getFullYear(), parseInt(parts[0])-1, parseInt(parts[1]));
+    var diff = (d - today)/(1000*60*60*24);
+    return diff >= -1 && diff <= 6;
+  }
+  var events = [];
+  EMPLOYEES.forEach(function(e) {
+    if (e.birthday) {
+      var md = e.birthday.slice(5); // MM-DD
+      if (isThisWeekMD(md)) events.push({type:'birthday', name:e.name, du:daysUntil(md)});
+    }
+    if (e.start) {
+      var md2 = e.start.slice(5);
+      var years = today.getFullYear() - new Date(e.start+'T12:00:00').getFullYear();
+      if (years > 0 && isThisWeekMD(md2)) events.push({type:'anniversary', name:e.name, years:years, company:e.company, du:daysUntil(md2)});
+    }
+  });
+  events.sort(function(a,b){ return a.du-b.du; });
+  if (!events.length) return '<div class="card" style="margin-bottom:0"><div class="card-title">🎂 Celebraciones esta semana</div><div style="color:var(--tx3);font-size:13px;text-align:center;padding:8px">Sin cumpleaños ni aniversarios esta semana</div></div>';
+  var items = events.map(function(ev){
+    var icon = ev.type==='birthday'?'🎂':'🎉';
+    var color = ev.type==='birthday'?'#EC4899':'var(--ac)';
+    var label = ev.type==='birthday'?'Cumpleaños':(ev.years+'° aniversario en '+ev.company);
+    var duLabel = ev.du===0?'¡Hoy! 🎊':ev.du===1?'Mañana':'En '+ev.du+'d';
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">' +
+      '<div style="font-size:18px">' + icon + '</div>' +
+      '<div style="flex:1"><div style="font-size:13px;font-weight:500">' + ev.name + '</div>' +
+      '<div style="font-size:11px;color:var(--tx2)">' + label + '</div></div>' +
+      '<div style="font-size:12px;font-weight:700;color:' + (ev.du===0?'#DC2626':ev.du<=3?'#D97706':'var(--tx2)') + '">' + duLabel + '</div></div>';
+  }).join('');
+  return '<div class="card" style="margin-bottom:0"><div class="card-title" style="cursor:pointer" onclick="navigate(&quot;anniversaries&quot;)">🎂 Celebraciones esta semana <span style="font-size:11px;color:var(--ac);margin-left:4px">Ver todas →</span></div>' + items + '</div>';
+}
+
+
+
+</script>
+</body>
+</html>

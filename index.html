@@ -1580,16 +1580,118 @@ function kpi(cls, label, value, sub) {
 // ============================================================
 // RENDER: EMPLOYEES
 // ============================================================
-function renderEmployees(el) {
-  el.innerHTML = '<div class="page-header"><h1 class="page-title">Empleados</h1><p class="page-sub">Directorio completo — Draftea + Pitaco</p></div>' +
-    '<div class="page-body">' + empTable(EMPLOYEES, true) + '</div>';
+async function renderEmployees(el) {
+  el.innerHTML = '<div class="page-header"><h1 class="page-title">Empleados</h1><p class="page-sub">Directorio completo — Draftea</p></div>' +
+    '<div class="page-body"><div class="card" style="text-align:center;padding:40px;color:var(--tx2)">⏳ Cargando directorio...</div></div>';
+
+  try {
+    var res = await callEdge('get_sheet_data', {
+      role: currentUser.role,
+      email: currentUser.email,
+      employee_name: currentUser.name
+    });
+    var sheetEmps = res.employees || [];
+
+    // Merge with EMPLOYEES for IDs
+    var merged = sheetEmps.map(function(s) {
+      var match = EMPLOYEES.find(function(e){ return e.email && e.email.toLowerCase() === (s['Mail Corporativo']||'').toLowerCase(); });
+      return {
+        id: match ? match.id : s['Mail Corporativo'],
+        name: s['Employee'] || '—',
+        email: s['Mail Corporativo'] || '—',
+        country: s['Country'] || '—',
+        city: s['City'] || '—',
+        area: s['Area'] || '—',
+        subunit: s['SubUnit'] || '—',
+        puesto: s['Puesto Laboral'] || '—',
+        manager: s['Direct Report'] || '—',
+        salary: s['Salario'] || '—',
+        moneda: s['Moneda'] || 'USD',
+        salary_usd: s['Salario USD'] || '—',
+        empresa: s['Empresa'] || 'Draftea',
+        start: s['Fecha de contrato'] || '—',
+        gender: s['Gender'] || '—',
+        birthdate: s['Birthdate'] || '—',
+        company: s['Empresa'] || 'Draftea',
+        role: s['Puesto Laboral'] || '—',
+        // keep perf/vac from EMPLOYEES if exists
+        perf: match ? match.perf : null,
+        vacDays: match ? match.vacDays : 15,
+        vacUsed: match ? match.vacUsed : 0,
+        equipment: match ? match.equipment : [],
+        salaryHistory: match ? match.salaryHistory : [],
+      };
+    });
+
+    el.innerHTML = '<div class="page-header"><h1 class="page-title">Empleados</h1>' +
+      '<p class="page-sub">Directorio — ' + merged.length + ' personas</p></div>' +
+      '<div class="page-body">' + empTable(merged, true) + '</div>';
+
+    // Update global EMPLOYEES with sheet data for drawer
+    if (merged.length) SHEET_EMPLOYEES = merged;
+
+  } catch(err) {
+    console.error('renderEmployees error:', err);
+    el.innerHTML = '<div class="page-header"><h1 class="page-title">Empleados</h1></div>' +
+      '<div class="page-body"><div class="card" style="color:red">Error cargando datos: ' + err.message + '</div></div>';
+  }
 }
 
-function renderTeam(el) {
-  var myTeam = EMPLOYEES.filter(function(e){ return e.manager === currentUser.name; });
+async function renderTeam(el) {
   el.innerHTML = '<div class="page-header"><h1 class="page-title">Mi Equipo</h1><p class="page-sub">Tus reportes directos</p></div>' +
-    '<div class="page-body">' + empTable(myTeam, false) + '</div>';
+    '<div class="page-body"><div class="card" style="text-align:center;padding:40px;color:var(--tx2)">⏳ Cargando equipo...</div></div>';
+
+  try {
+    var res = await callEdge('get_sheet_data', {
+      role: currentUser.role,
+      email: currentUser.email,
+      employee_name: currentUser.name
+    });
+    var sheetEmps = res.employees || [];
+
+    var myTeam = sheetEmps.filter(function(s){
+      return s['Direct Report']?.toLowerCase() === currentUser.name?.toLowerCase() &&
+             s['Mail Corporativo']?.toLowerCase() !== currentUser.email?.toLowerCase();
+    }).map(function(s) {
+      var match = EMPLOYEES.find(function(e){ return e.email && e.email.toLowerCase() === (s['Mail Corporativo']||'').toLowerCase(); });
+      return {
+        id: match ? match.id : s['Mail Corporativo'],
+        name: s['Employee'] || '—',
+        email: s['Mail Corporativo'] || '—',
+        country: s['Country'] || '—',
+        city: s['City'] || '—',
+        area: s['Area'] || '—',
+        subunit: s['SubUnit'] || '—',
+        puesto: s['Puesto Laboral'] || '—',
+        manager: s['Direct Report'] || '—',
+        salary: s['Salario'] || '—',
+        moneda: s['Moneda'] || 'USD',
+        salary_usd: s['Salario USD'] || '—',
+        empresa: s['Empresa'] || 'Draftea',
+        start: s['Fecha de contrato'] || '—',
+        company: s['Empresa'] || 'Draftea',
+        role: s['Puesto Laboral'] || '—',
+        perf: match ? match.perf : null,
+        vacDays: match ? match.vacDays : 15,
+        vacUsed: match ? match.vacUsed : 0,
+        equipment: match ? match.equipment : [],
+        salaryHistory: match ? match.salaryHistory : [],
+      };
+    });
+
+    el.innerHTML = '<div class="page-header"><h1 class="page-title">Mi Equipo</h1>' +
+      '<p class="page-sub">' + myTeam.length + ' reporte(s) directo(s)</p></div>' +
+      '<div class="page-body">' + empTable(myTeam, false) + '</div>';
+
+    if (myTeam.length) SHEET_EMPLOYEES = (SHEET_EMPLOYEES || []).concat(myTeam);
+
+  } catch(err) {
+    el.innerHTML = '<div class="page-header"><h1 class="page-title">Mi Equipo</h1></div>' +
+      '<div class="page-body"><div class="card" style="color:red">Error: ' + err.message + '</div></div>';
+  }
 }
+
+var SHEET_EMPLOYEES = [];
 
 function empTable(data, showFilters) {
   var filterHtml = showFilters ? '<div class="tbl-filter-row" id="coFilters">' +
@@ -1598,24 +1700,30 @@ function empTable(data, showFilters) {
     '<button class="fpill" onclick="filterEmpCo(this,\'Pitaco\')">Pitaco</button>' +
     '</div>' : '';
 
+  var canSeeSalary = currentUser && (currentUser.role === 'admin' || currentUser.role === 'manager');
+
   var rows = data.map(function(e){
     var avg = avgPerf(e); var tier = perfTier(avg);
-    return '<tr data-company="' + e.company + '">' +
+    var salaryCell = canSeeSalary ? '<td style="font-size:12px">' + (e.salary||'—') + ' ' + (e.moneda||'USD') +
+      (e.moneda && e.moneda !== 'USD' && e.salary_usd ? '<div style="color:var(--tx2);font-size:11px">$' + e.salary_usd + ' USD</div>' : '') + '</td>' : '';
+    return '<tr data-company="' + (e.company||'Draftea') + '">' +
       '<td><div class="name-cell"><div class="avatar">' + initials(e.name) + '</div><div><div style="font-weight:500">' + e.name + '</div><div style="font-size:11px;color:var(--tx2)">' + e.email + '</div></div></div></td>' +
-      '<td>' + coTag(e.company) + '</td>' +
-      '<td>' + e.area + '</td>' +
-      '<td>' + e.role + '</td>' +
-      '<td>' + e.country + '</td>' +
-      '<td style="font-size:12px;color:var(--tx2)">' + fmtDate(e.start) + '</td>' +
-      '<td>' + (avg ? '<span class="badge ' + tier.cls + '">' + tier.label + '</span>' : '<span class="badge b-gray">—</span>') + '</td>' +
+      '<td>' + (e.area||'—') + '</td>' +
+      '<td>' + (e.puesto||e.role||'—') + '</td>' +
+      '<td style="font-size:12px;color:var(--tx2)">' + (e.manager||'—') + '</td>' +
+      '<td>' + (e.country||'—') + '</td>' +
+      '<td style="font-size:12px;color:var(--tx2)">' + (e.start||'—') + '</td>' +
+      salaryCell +
       '<td><button class="btn btn-ghost btn-sm" onclick="openEmpDrawer(\'' + e.id + '\')">Ver →</button></td></tr>';
   }).join('');
 
+  var salaryHeader = canSeeSalary ? '<th>Salario</th>' : '';
+
   return '<div class="tbl-wrap">' +
     '<div class="tbl-top"><h3>Empleados (' + data.length + ')</h3>' +
-    '<input class="tbl-search" placeholder="Buscar..." onkeyup="filterEmpSearch(this.value)"/></div>' +
+    '<input class="tbl-search" placeholder="Buscar nombre, área, cargo..." onkeyup="filterEmpSearch(this.value)"/></div>' +
     filterHtml +
-    '<table><thead><tr><th>Empleado</th><th>Empresa</th><th>Área</th><th>Cargo</th><th>País</th><th>Ingreso</th><th>Performance</th><th></th></tr></thead>' +
+    '<table><thead><tr><th>Empleado</th><th>Área</th><th>Cargo</th><th>Manager</th><th>País</th><th>Ingreso</th>' + salaryHeader + '<th></th></tr></thead>' +
     '<tbody id="empTbody">' + rows + '</tbody></table></div>';
 }
 
@@ -1638,14 +1746,26 @@ function filterEmpSearch(q) {
 // EMPLOYEE DRAWER
 // ============================================================
 function openEmpDrawer(id) {
-  var e = EMPLOYEES.find(function(emp){ return emp.id === id; });
+  var e = (SHEET_EMPLOYEES && SHEET_EMPLOYEES.find(function(emp){ return emp.id === id; })) ||
+          EMPLOYEES.find(function(emp){ return emp.id === id; });
   if (!e) return;
+  // Normalize fields
+  e = Object.assign({}, e, {
+    puesto: e.puesto || e.role || '—',
+    moneda: e.moneda || e.currency || 'USD',
+    salary_usd: e.salary_usd || '',
+    empresa: e.empresa || e.company || '—',
+    city: e.city || '—',
+    subunit: e.subunit || '—',
+  });
   var role = currentUser.role;
-  var canSeeSalary = role === 'admin';
+  // Managers can see salary of their direct reports
+  var canSeeSalary = role === 'admin' || (role === 'manager' && e.manager === currentUser.name);
 
   var salaryBlock = canSeeSalary ? (
     '<div class="drawer-section"><div class="drawer-section-title">💰 Compensación</div>' +
-    '<div class="salary-big">' + fmtNum(e.salary) + ' ' + e.currency + '</div>' +
+    '<div class="salary-big">' + (e.salary || fmtNum(e.salary_num)) + ' ' + (e.moneda || e.currency || 'USD') + '</div>' +
+    (e.moneda && e.moneda !== 'USD' && e.salary_usd ? '<div style="font-size:13px;color:var(--tx2);margin-top:4px">≈ $' + e.salary_usd + ' USD</div>' : '') +
     (e.commission ? '<div style="font-size:12px;color:var(--tx2);margin-top:4px">Comisión OnTop: ' + e.commission + '</div>' : '') +
     '<div style="margin-top:14px">' +
     (e.salaryHistory||[]).map(function(h){
@@ -1696,10 +1816,11 @@ function openEmpDrawer(id) {
     '<div class="drawer-body">' +
     '<div class="drawer-section"><div class="drawer-section-title">Información personal & laboral</div>' +
     '<div class="info-grid">' +
-    irow('País',e.country) + irow('Manager',e.manager||'—') +
-    irow('Teléfono',e.phone||'—') + irow('Email personal',e.email||'—') +
-    irow('Fecha ingreso',fmtDate(e.start)) + irow('Tipo contrato','Full-time') +
-    irow('Contacto emergencia',e.emergency||'—','full') +
+    irow('País',e.country) + irow('Ciudad',e.city||'—') +
+    irow('Área',e.area||'—') + irow('SubUnit',e.subunit||'—') +
+    irow('Puesto',e.puesto||e.role||'—') + irow('Manager',e.manager||'—') +
+    irow('Email corporativo',e.email||'—') + irow('Empresa',e.empresa||e.company||'—') +
+    irow('Fecha ingreso',e.start||fmtDate(e.start_date)||'—') + irow('Tipo contrato','Full-time') +
     '</div></div>' +
     salaryBlock + perfBlock + vacBlock + eqBlock +
     '</div>';
@@ -1918,43 +2039,85 @@ async function approveVac(id, status) {
 // ============================================================
 // RENDER: MY PROFILE (employee)
 // ============================================================
-function renderMyProfile(el) {
+async function renderMyProfile(el) {
+  el.innerHTML = '<div class="page-header"><h1 class="page-title">Mi Perfil</h1></div><div class="page-body"><div class="card" style="text-align:center;padding:40px;color:var(--tx2)">⏳ Cargando información...</div></div>';
+
+  // Load data from Google Sheets via Edge Function
+  var sheetData = null;
+  try {
+    var res = await callEdge('get_sheet_data', {
+      role: currentUser.role,
+      email: currentUser.email,
+      employee_name: currentUser.name
+    });
+    sheetData = res.employees && res.employees.length ? res.employees[0] : null;
+  } catch(err) {
+    console.error('Sheet data error:', err);
+  }
+
   var e = currentEmp;
-  if (!e) { el.innerHTML = '<div class="page-header"><h1 class="page-title">Mi Perfil</h1></div><div class="page-body"><div class="card">Sin datos</div></div>'; return; }
+  // Merge sheet data with currentEmp
+  if (sheetData) {
+    e = Object.assign({}, e || {}, {
+      name: sheetData['Employee'] || (e && e.name) || currentUser.name,
+      email: sheetData['Mail Corporativo'] || currentUser.email,
+      country: sheetData['Country'] || (e && e.country) || '—',
+      city: sheetData['City'] || '—',
+      area: sheetData['Area'] || (e && e.area) || '—',
+      subunit: sheetData['SubUnit'] || '—',
+      puesto: sheetData['Puesto Laboral'] || (e && e.role) || '—',
+      manager: sheetData['Direct Report'] || (e && e.manager) || '—',
+      salary: sheetData['Salario'] || '—',
+      moneda: sheetData['Moneda'] || 'USD',
+      salary_usd: sheetData['Salario USD'] || '—',
+      empresa: sheetData['Empresa'] || sheetData['L'] || '—',
+      start: sheetData['Fecha de contrato'] || (e && e.start) || '—',
+      gender: sheetData['Gender'] || '—',
+      birthdate: sheetData['Birthdate'] || '—',
+    });
+  }
+
+  if (!e) {
+    el.innerHTML = '<div class="page-header"><h1 class="page-title">Mi Perfil</h1></div><div class="page-body"><div class="card">Sin datos disponibles</div></div>';
+    return;
+  }
+
   var avg = avgPerf(e); var tier = perfTier(avg);
 
-  el.innerHTML = '<div class="page-header"><h1 class="page-title">Mi Perfil</h1><p class="page-sub">' + e.role + ' · ' + e.area + ' · ' + e.company + '</p></div>' +
+  el.innerHTML = '<div class="page-header"><h1 class="page-title">Mi Perfil</h1><p class="page-sub">' + (e.puesto||'') + ' · ' + (e.area||'') + ' · ' + (e.empresa||'') + '</p></div>' +
     '<div class="page-body">' +
     '<div class="card">' +
     '<div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">' +
     '<div class="drawer-avatar">' + initials(e.name) + '</div>' +
     '<div><div style="font-family:var(--display);font-size:22px;font-weight:700">' + e.name + '</div>' +
-    '<div style="font-size:13px;color:var(--tx2)">' + e.role + ' · ' + e.area + '</div></div></div>' +
+    '<div style="font-size:13px;color:var(--tx2)">' + (e.puesto||'') + ' · ' + (e.area||'') + '</div></div></div>' +
     '<div class="info-grid">' +
-    irow('País',e.country) + irow('Manager',e.manager||'—') +
-    irow('Email',e.email) + irow('Teléfono',e.phone||'—') +
-    irow('Fecha ingreso',fmtDate(e.start)) + irow('Empresa',e.company) +
+    irow('País', e.country) +
+    irow('Ciudad', e.city) +
+    irow('Área', e.area) +
+    irow('SubUnit', e.subunit) +
+    irow('Puesto', e.puesto) +
+    irow('Manager', e.manager) +
+    irow('Email corporativo', e.email) +
+    irow('Empresa', e.empresa) +
+    irow('Fecha ingreso', e.start) +
+    irow('Género', e.gender) +
+    irow('Fecha nacimiento', e.birthdate) +
     '</div></div>' +
     '<div class="two-col">' +
+    '<div class="card"><div class="card-title">💰 Mi Compensación</div>' +
+    '<div class="salary-row"><span style="color:var(--tx2);font-size:13px">Salario</span><span class="salary-big">' + e.salary + ' ' + e.moneda + '</span></div>' +
+    (e.moneda !== 'USD' ? '<div class="salary-row"><span style="color:var(--tx2);font-size:13px">Equivalente USD</span><span style="font-weight:600">$' + e.salary_usd + ' USD</span></div>' : '') +
+    '</div>' +
     '<div class="card"><div class="card-title">🌴 Mis vacaciones</div>' +
-    '<div class="three-col" style="margin-bottom:12px">' +
-    '<div style="text-align:center"><div style="font-size:22px;font-weight:700;color:var(--ac)">' + e.vacDays + '</div><div style="font-size:11px;color:var(--tx2)">Total</div></div>' +
-    '<div style="text-align:center"><div style="font-size:22px;font-weight:700">' + e.vacUsed + '</div><div style="font-size:11px;color:var(--tx2)">Tomados</div></div>' +
-    '<div style="text-align:center"><div style="font-size:22px;font-weight:700;color:var(--green)">' + (e.vacDays-e.vacUsed) + '</div><div style="font-size:11px;color:var(--tx2)">Disponibles</div></div>' +
-    '</div>' +
-    '<div class="prog-wrap"><div class="prog-bar" style="width:' + Math.round(e.vacUsed/e.vacDays*100) + '%;background:var(--ac)"></div></div>' +
-    '<div style="margin-top:14px"><button class="btn btn-primary btn-sm" onclick="navigate(\'my-vacations\')">Solicitar vacaciones →</button></div>' +
-    '</div>' +
-    '<div class="card"><div class="card-title">📊 Mi Performance</div>' +
-    (avg ? '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span class="badge ' + tier.cls + '">' + tier.label + '</span><span style="font-size:22px;font-weight:700;color:var(--tx)">' + avg + '</span><span style="font-size:12px;color:var(--tx2)">/10</span></div>' : '') +
+    '<div style="margin-top:14px"><button class="btn btn-primary btn-sm" onclick="navigate('my-vacations')">Solicitar vacaciones →</button></div>' +
+    '</div></div>' +
+    (avg ? '<div class="card"><div class="card-title">📊 Mi Performance</div>' +
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span class="badge ' + tier.cls + '">' + tier.label + '</span><span style="font-size:22px;font-weight:700;color:var(--tx)">' + avg + '</span><span style="font-size:12px;color:var(--tx2)">/10</span></div>' +
     (e.perf && e.perf.manager_score ? scoreRow('Manager','#6D28D9',e.perf.manager_score) : '') +
     (e.perf && e.perf.peer_avg ? scoreRow('Peers','#3B82F6',e.perf.peer_avg) : '') +
-    '</div></div>' +
-    '<div class="card"><div class="card-title">💻 Mi Equipo</div>' +
-    (e.equipment||[]).map(function(eq){
-      return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0"><div style="font-size:20px">💻</div><div><div style="font-weight:500;font-size:13px">' + eq.model + '</div><div style="font-size:11px;color:var(--tx2)">S/N: ' + eq.serial + '</div></div></div>';
-    }).join('') +
-    '</div></div>';
+    '</div>' : '') +
+    '</div>';
 }
 
 // ============================================================
@@ -3030,12 +3193,46 @@ async function handleGoogleLogin(googleResponse) {
 
     // Set current employee
     currentEmp = EMPLOYEES.find(function(e){ return e.id === profile.employee_id; }) || null;
+
+    // Determine user name from Google payload
+    var googlePayload2 = JSON.parse(atob(googleResponse.credential.split('.')[1]));
     currentUser = {
-      name: currentEmp ? currentEmp.name : (authData.user ? authData.user.email : ''),
+      name: currentEmp ? currentEmp.name : (googlePayload2.name || googlePayload2.email),
       role: profile.role,
       empId: profile.employee_id,
-      email: authData.user ? authData.user.email : ''
+      email: googlePayload2.email
     };
+
+    // Load sheet data for this user and merge into currentEmp
+    try {
+      var sheetRes = await callEdge('get_sheet_data', {
+        role: profile.role,
+        email: googlePayload2.email,
+        employee_name: currentUser.name
+      }, token);
+      if (sheetRes.employees && sheetRes.employees.length && currentEmp) {
+        var mySheet = sheetRes.employees.find(function(s){ return s['Mail Corporativo']?.toLowerCase() === googlePayload2.email.toLowerCase(); }) || sheetRes.employees[0];
+        if (mySheet) {
+          currentEmp = Object.assign({}, currentEmp, {
+            country: mySheet['Country'] || currentEmp.country,
+            city: mySheet['City'] || '',
+            area: mySheet['Area'] || currentEmp.area,
+            subunit: mySheet['SubUnit'] || '',
+            puesto: mySheet['Puesto Laboral'] || currentEmp.role,
+            manager: mySheet['Direct Report'] || currentEmp.manager,
+            salary: mySheet['Salario'] || currentEmp.salary,
+            moneda: mySheet['Moneda'] || 'USD',
+            salary_usd: mySheet['Salario USD'] || '',
+            empresa: mySheet['Empresa'] || currentEmp.company,
+            start: mySheet['Fecha de contrato'] || currentEmp.start,
+            gender: mySheet['Gender'] || '',
+            birthdate: mySheet['Birthdate'] || '',
+          });
+        }
+      }
+    } catch(sheetErr) {
+      console.warn('Sheet data load error:', sheetErr);
+    }
 
     // 4. Load vacations via Edge Function
     var vacData = await callEdge('get_vacations', {}, token);

@@ -1017,14 +1017,11 @@ var EDGE_URL = 'https://tyfahsafccqirvdmdmmm.supabase.co/functions/v1/people-api
 
 async function callEdge(action, extra, token) {
   var body = Object.assign({ action: action }, extra || {});
-  // Always include email for profile lookup
-  if (currentUser && currentUser.email) body.email = currentUser.email;
   var res = await fetch(EDGE_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + (token || SB_KEY),
-      'apikey': SB_KEY
+      'x-api-key': 'draftea-people-hub-2026'
     },
     body: JSON.stringify(body)
   });

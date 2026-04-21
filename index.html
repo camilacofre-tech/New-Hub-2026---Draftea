@@ -889,18 +889,34 @@ tbody tr:hover td{background:#FAFAF8}
           <div><div class="login-brand">Draftea People Hub</div></div>
         </div>
         <h1 class="login-title">Acceso RRHH</h1>
-        <p class="login-sub">Ingresa con tu cuenta corporativa</p>
+        <p class="login-sub">Ingresa con tu cuenta corporativa @draftea.com</p>
         <div id="loginError" class="login-error hidden"></div>
-        <div class="lf-group"><label>Email</label><input type="email" id="loginEmail" placeholder="tu@draftea.com" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-        <div class="lf-group"><label>Contraseña</label><input type="password" id="loginPwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-        <button class="login-btn" onclick="doLogin()">Ingresar →</button>
-        <div class="login-demo">
-          <strong>👤 Cuentas demo</strong>
-          Admin: admin@draftea.com / admin123<br/>
-          Manager: joe@draftea.com / manager123<br/>
-          Manager Pitaco: rodrigo@pitaco.com / manager123<br/>
-          Empleado: franco@draftea.com / emp123
+
+        <!-- Google Sign In button -->
+        <div id="g_id_onload"
+          data-client_id="773034458153-kbq9o1kr4pfiftnqq6l8c2pctrhied9t.apps.googleusercontent.com"
+          data-callback="handleGoogleLogin"
+          data-auto_prompt="false">
         </div>
+        <div class="g_id_signin"
+          data-type="standard"
+          data-size="large"
+          data-theme="outline"
+          data-text="sign_in_with"
+          data-shape="rectangular"
+          data-logo_alignment="left"
+          data-width="340">
+        </div>
+
+        <div style="margin:20px 0;display:flex;align-items:center;gap:10px">
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+          <span style="font-size:12px;color:var(--tx2)">o ingresá con email</span>
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+        </div>
+
+        <div class="lf-group"><label>Email</label><input type="email" id="loginEmail" placeholder="tu@draftea.com" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+        <div class="lf-group"><label>Contraseña</label><input type="password" id="loginPwd" placeholder="Draftea2026!" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+        <button class="login-btn" onclick="doLogin()">Ingresar →</button>
       </div>
     </div>
     <div id="appWrap" class="hidden" style="display:flex;width:100%;height:100%">
@@ -1002,60 +1018,71 @@ var SLACK_WEBHOOK = 'https://hooks.slack.com/services/TU/WEBHOOK/URL';
 // SUPABASE CONFIG
 // ============================================================
 var SB_URL = 'https://tyfahsafccqirvdmdmmm.supabase.co';
-var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5ZmFoc2FmY2NxaXJ2ZG1kbW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NzI5NzEsImV4cCI6MjA5MjM0ODk3MX0.Vzl9Bk8fwIRi15xbWnYSO8xpj_fEaAGXDEEjZXWnmlQ';
+var SB_KEY = 'sb_publishable_DRIrcvZ9Oh_vgctM9HxnUQ_E3zuxv3J';
 
-// ── Supabase SDK client ───────────────────────────────────
-var _sb = null;
-function getSB() {
-  if (!_sb) _sb = window.supabase.createClient(SB_URL, SB_KEY);
-  return _sb;
-}
-
+// ── Supabase REST client (no SDK, sin CORS issues) ───────
 var sbSession = null;
 
-async function sbSignIn(email, password) {
-  var sb = getSB();
-  var result = await sb.auth.signInWithPassword({ email: email, password: password });
-  if (result.error) return { error: result.error.message };
-  return { access_token: result.data.session.access_token, user: result.data.user };
+function sbHeaders(token) {
+  var h = {
+    'Content-Type': 'application/json',
+    'apikey': SB_KEY,
+    'Authorization': 'Bearer ' + (token || SB_KEY)
+  };
+  return h;
 }
 
-async function sbSignOut() {
-  var sb = getSB();
-  await sb.auth.signOut();
-  sbSession = null;
+async function sbSignIn(email, password) {
+  // Use Supabase auth endpoint
+  try {
+    var res = await fetch(SB_URL + '/auth/v1/token?grant_type=password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY },
+      body: JSON.stringify({ email: email, password: password })
+    });
+    var data = await res.json();
+    return data;
+  } catch(e) {
+    return { error: e.message };
+  }
 }
+
+async function sbSignOut() { sbSession = null; }
 
 async function sbQuery(table, params, token) {
-  var sb = getSB();
-  var q = sb.from(table).select('*');
-  var result = await q;
-  if (result.error) return [];
-  return result.data;
+  try {
+    var url = SB_URL + '/rest/v1/' + table + '?' + (params || 'select=*');
+    var res = await fetch(url, { headers: sbHeaders(token) });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch(e) { return []; }
 }
 
 async function sbInsert(table, data, token) {
-  var sb = getSB();
-  var result = await sb.from(table).insert(data).select();
-  if (result.error) { console.error('Insert error:', result.error); return null; }
-  return result.data;
+  try {
+    var res = await fetch(SB_URL + '/rest/v1/' + table, {
+      method: 'POST',
+      headers: Object.assign({}, sbHeaders(token), { 'Prefer': 'return=representation' }),
+      body: JSON.stringify(data)
+    });
+    return await res.json();
+  } catch(e) { return null; }
 }
 
 async function sbUpdate(table, filter, data, token) {
-  var sb = getSB();
-  // filter is like 'id=eq.xxx', parse it
-  var parts = filter.split('=eq.');
-  var col = parts[0]; var val = parts[1];
-  var result = await sb.from(table).update(data).eq(col, val).select();
-  if (result.error) { console.error('Update error:', result.error); return null; }
-  return result.data;
+  try {
+    var res = await fetch(SB_URL + '/rest/v1/' + table + '?' + filter, {
+      method: 'PATCH',
+      headers: Object.assign({}, sbHeaders(token), { 'Prefer': 'return=representation' }),
+      body: JSON.stringify(data)
+    });
+    return await res.json();
+  } catch(e) { return null; }
 }
 
 async function sbGetProfile(token) {
-  var sb = getSB();
-  var result = await sb.from('user_profiles').select('*');
-  if (result.error || !result.data || !result.data.length) return null;
-  return result.data[0];
+  var rows = await sbQuery('user_profiles', 'select=*', token);
+  return (rows && rows.length) ? rows[0] : null;
 }
 
 // ============================================================
@@ -1097,37 +1124,72 @@ async function doLogin() {
     btn.textContent = 'Ingresar →'; btn.disabled = false;
   }
 
+  // Try Supabase auth
   try {
     var data = await sbSignIn(email, pwd);
-    console.log('Supabase response:', JSON.stringify(data));
-    if (data.access_token) {
+    console.log('Supabase response:', data ? JSON.stringify(data).slice(0,100) : 'null');
+
+    if (data && data.access_token) {
       sbSession = data;
+
+      // Load profile
       var profile = await sbGetProfile(data.access_token);
       if (!profile) { showError('Sin perfil asignado. Contactá a People.'); return; }
 
-      var empData = await sbQuery('employees', 'id=eq.' + profile.employee_id + '&select=*', data.access_token);
-      currentEmp = empData[0] || null;
-      currentUser = { name: currentEmp ? currentEmp.name : email, role: profile.role, empId: profile.employee_id, email: email };
+      // Load employee data
+      var empRows = await sbQuery('employees', 'id=eq.' + profile.employee_id + '&select=*', data.access_token);
+      currentEmp = empRows && empRows.length ? empRows[0] : null;
+      currentUser = {
+        name: currentEmp ? currentEmp.name : email,
+        role: profile.role,
+        empId: profile.employee_id,
+        email: email
+      };
 
+      // Load all visible employees
       var allEmps = await sbQuery('employees', 'select=*', data.access_token);
-      if (allEmps && allEmps.length) EMPLOYEES = allEmps;
+      if (allEmps && allEmps.length) {
+        EMPLOYEES = allEmps.map(function(e) {
+          return Object.assign(e, {
+            role: e.role || e.puesto_laboral || '',
+            area: e.area || '',
+            salary: e.salary || 0,
+            salary_currency: e.salary_currency || 'USD',
+            start: e.start_date || '',
+            birthday: e.birthday || '',
+            vacDays: e.vac_days_total || 15,
+            vacUsed: e.vac_days_used || 0,
+            company: e.company || 'Draftea'
+          });
+        });
+      }
 
+      // Load vacations
       var vacs = await sbQuery('vacations', 'select=*&order=created_at.desc', data.access_token);
       if (vacs && vacs.length) {
         VACATIONS = vacs.map(function(v) {
-          var emp = (allEmps||[]).find(function(e){ return e.id === v.employee_id; });
-          return { id:v.id, employee_id:v.employee_id, employee_name:emp?emp.name:'',
-            manager_id:v.manager_id, start:v.start_date, end:v.end_date,
-            days:v.days, reason:v.reason, status:v.status,
-            company:emp?emp.company:'', created:v.created_at?v.created_at.split('T')[0]:'' };
+          var emp = EMPLOYEES.find(function(e){ return e.id === v.employee_id; });
+          return {
+            id: v.id, employee_id: v.employee_id,
+            employee_name: emp ? emp.name : '',
+            manager_id: v.manager_id,
+            start: v.start_date, end: v.end_date,
+            days: v.days, reason: v.reason, status: v.status,
+            company: emp ? emp.company : '',
+            created: v.created_at ? v.created_at.split('T')[0] : ''
+          };
         });
       }
+
       showApp(); return;
     }
+
+    if (data && data.error) {
+      console.log('Auth error:', data.error, data.error_description);
+    }
+
   } catch(err) {
-    console.log('Supabase error:', err);
-    showError('Error de conexión: ' + (err.message || err));
-    return;
+    console.log('Supabase exception:', err.message || err);
   }
 
   // Fallback demo
@@ -2877,6 +2939,81 @@ function anniversariesWidget() {
 }
 
 
+
+
+// ============================================================
+// GOOGLE SIGN IN HANDLER
+// ============================================================
+async function handleGoogleLogin(googleResponse) {
+  var errEl = document.getElementById('loginError');
+  try {
+    // Send ID token to Supabase
+    var res = await fetch('https://tyfahsafccqirvdmdmmm.supabase.co/auth/v1/token?grant_type=id_token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SB_KEY
+      },
+      body: JSON.stringify({
+        provider: 'google',
+        id_token: googleResponse.credential
+      })
+    });
+
+    var data = await res.json();
+    console.log('Google auth response:', data);
+
+    if (data.access_token) {
+      sbSession = data;
+      var profile = await sbGetProfile(data.access_token);
+
+      if (!profile) {
+        // User authenticated with Google but no profile — try to find by email
+        var payload = JSON.parse(atob(googleResponse.credential.split('.')[1]));
+        var email = payload.email;
+        errEl.textContent = 'Tu cuenta ' + email + ' no tiene perfil asignado. Contactá a People.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      var empRows = await sbQuery('employees', 'id=eq.' + profile.employee_id + '&select=*', data.access_token);
+      currentEmp = empRows && empRows.length ? empRows[0] : null;
+      currentUser = {
+        name: currentEmp ? currentEmp.name : data.user.email,
+        role: profile.role,
+        empId: profile.employee_id,
+        email: data.user.email
+      };
+
+      var allEmps = await sbQuery('employees', 'select=*', data.access_token);
+      if (allEmps && allEmps.length) {
+        EMPLOYEES = allEmps.map(function(e) {
+          return Object.assign(e, {
+            vacDays: e.vac_days_total || 15,
+            vacUsed: e.vac_days_used || 0,
+            company: e.company || 'Draftea',
+            start: e.start_date || '',
+          });
+        });
+      }
+
+      errEl.classList.add('hidden');
+      document.getElementById('loginScreen').style.display = 'none';
+      var app = document.getElementById('appWrap');
+      app.classList.remove('hidden'); app.style.display = 'flex';
+      buildSidebar();
+      navigate(currentUser.role === 'employee' ? 'my-profile' : 'dashboard');
+
+    } else {
+      errEl.textContent = 'Error al autenticar con Google: ' + (data.error_description || data.error || 'Error desconocido');
+      errEl.classList.remove('hidden');
+    }
+  } catch(err) {
+    console.error('Google login error:', err);
+    errEl.textContent = 'Error de conexión con Google.';
+    errEl.classList.remove('hidden');
+  }
+}
 
 </script>
 </body>

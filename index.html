@@ -1108,6 +1108,7 @@ async function doLogin() {
 
   try {
     var data = await sbSignIn(email, pwd);
+    console.log('Supabase response:', JSON.stringify(data));
     if (data.access_token) {
       sbSession = data;
       var profile = await sbGetProfile(data.access_token);
@@ -1132,11 +1133,15 @@ async function doLogin() {
       }
       showApp(); return;
     }
-  } catch(err) { console.log('Supabase error:', err); }
+  } catch(err) {
+    console.log('Supabase error:', err);
+    showError('Error de conexión: ' + (err.message || err));
+    return;
+  }
 
   // Fallback demo
   var demoUser = USERS.find(function(u){ return u.email === email && u.pwd === pwd; });
-  if (!demoUser) { showError('Credenciales incorrectas.'); return; }
+  if (!demoUser) { showError('Credenciales incorrectas. Si es tu primera vez, usá Draftea2026!'); return; }
   currentUser = demoUser;
   currentEmp  = EMPLOYEES.find(function(e){ return e.id === demoUser.empId; });
   showApp();

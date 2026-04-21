@@ -1095,8 +1095,16 @@ async function sbUpdate(table, filter, data, token) {
 }
 
 async function sbGetProfile(token) {
-  var rows = await sbQuery('user_profiles', 'select=*', token);
-  return (rows && rows.length) ? rows[0] : null;
+  try {
+    var payload = JSON.parse(atob(token.split('.')[1]));
+    var userId = payload.sub;
+    if (!userId) return null;
+    var rows = await sbQuery('user_profiles', 'id=eq.' + userId + '&select=*', token);
+    return (rows && rows.length) ? rows[0] : null;
+  } catch(e) {
+    console.error('sbGetProfile error:', e);
+    return null;
+  }
 }
 
 // ============================================================

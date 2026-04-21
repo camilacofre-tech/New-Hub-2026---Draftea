@@ -1017,6 +1017,8 @@ var EDGE_URL = 'https://tyfahsafccqirvdmdmmm.supabase.co/functions/v1/people-api
 
 async function callEdge(action, extra, token) {
   var body = Object.assign({ action: action }, extra || {});
+  // Always include email for profile lookup
+  if (currentUser && currentUser.email) body.email = currentUser.email;
   var res = await fetch(EDGE_URL, {
     method: 'POST',
     headers: {
@@ -2982,8 +2984,10 @@ async function handleGoogleLogin(googleResponse) {
     sbSession = authData;
     var token = authData.access_token;
 
-    // 2. Get profile via Edge Function
-    var profileData = await callEdge('get_profile', {}, token);
+    // 2. Get profile via Edge Function — set email first so callEdge can send it
+    var payload = JSON.parse(atob(googleResponse.credential.split('.')[1]));
+    currentUser = { email: payload.email, name: payload.name || payload.email, role: 'employee', empId: null };
+    var profileData = await callEdge('get_profile', { email: payload.email }, token);
     console.log('Profile:', profileData);
     var profile = profileData.profile;
 

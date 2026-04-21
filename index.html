@@ -1013,6 +1013,21 @@ function doLogout() {
 // CONFIG
 // ============================================================
 var SLACK_WEBHOOK = 'https://hooks.slack.com/services/TU/WEBHOOK/URL';
+var EDGE_URL = 'https://tyfahsafccqirvdmdmmm.supabase.co/functions/v1/people-api';
+
+async function callEdge(action, extra, token) {
+  var body = Object.assign({ action: action }, extra || {});
+  var res = await fetch(EDGE_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + (token || SB_KEY),
+      'apikey': SB_KEY
+    },
+    body: JSON.stringify(body)
+  });
+  return res.json();
+}
 
 // ============================================================
 // SUPABASE CONFIG

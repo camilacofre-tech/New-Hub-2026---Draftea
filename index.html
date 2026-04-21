@@ -410,6 +410,46 @@ tbody tr:hover td{background:#FAFAF8}
   letter-spacing:.08em;text-transform:uppercase;margin:24px 0 10px;
 }
 
+
+/* ── RESPONSIVE / MOBILE ──────────────────────────────────── */
+.hamburger{display:none;position:fixed;top:14px;left:14px;z-index:300;
+  background:var(--ac);border:none;border-radius:8px;width:38px;height:38px;
+  cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:5px;padding:8px}
+.hamburger span{display:block;width:20px;height:2px;background:#fff;border-radius:2px;transition:.2s}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:199}
+.sidebar-overlay.active{display:block}
+
+@media(max-width:768px){
+  .hamburger{display:flex}
+  .sidebar{
+    position:fixed;top:0;left:0;height:100vh;z-index:200;
+    transform:translateX(-100%);transition:transform .25s ease;
+    width:260px !important;
+  }
+  .sidebar.open{transform:translateX(0)}
+  .hris-inner{flex-direction:column}
+  #mainContent{width:100%;overflow-x:hidden;padding-bottom:60px}
+  .page-header{padding:16px 16px 12px}
+  .page-title{font-size:20px !important}
+  .page-body{padding:0 12px 12px}
+  .kpi-row{grid-template-columns:repeat(2,1fr) !important}
+  .two-col{grid-template-columns:1fr !important}
+  .three-col{grid-template-columns:repeat(2,1fr) !important}
+  .info-grid{grid-template-columns:1fr !important}
+  .tbl-wrap{overflow-x:auto}
+  table{min-width:520px}
+  .drawer{width:100% !important;max-width:100% !important}
+  .card{padding:14px !important}
+  .card-title{font-size:13px !important}
+  .login-card{width:92vw !important;padding:28px 20px !important}
+  .hris-app{padding-top:0}
+  .sb-header{padding-top:60px}
+}
+@media(max-width:480px){
+  .kpi-row{grid-template-columns:1fr 1fr !important}
+  .page-title{font-size:17px !important}
+  .salary-big{font-size:20px !important}
+}
 </style>
 </head>
 <body>
@@ -881,6 +921,10 @@ tbody tr:hover td{background:#FAFAF8}
       <div class="hris-topbar-sub">Sistema de RRHH · Draftea + Pitaco</div>
     </div>
   </div>
+  <button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
   <div class="hris-inner">
     <div id="loginScreen" style="position:absolute;inset:0;z-index:9999;background:var(--sidebar);display:flex;align-items:center;justify-content:center;background-image:radial-gradient(ellipse at 30% 60%,rgba(109,40,217,0.35) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(139,92,246,0.15) 0%,transparent 50%)">
       <div class="login-card">
@@ -920,7 +964,7 @@ tbody tr:hover td{background:#FAFAF8}
       </div>
     </div>
     <div id="appWrap" class="hidden" style="display:flex;width:100%;height:100%">
-      <div class="sidebar">
+      <div class="sidebar" id="sidebar">
         <div class="sb-header"><div class="sb-logo"><div class="sb-logomark">D</div><div class="sb-brand">People Hub<small>Draftea + Pitaco</small></div></div></div>
         <div class="sb-user"><div class="sb-avatar" id="sbAvatar"></div><div><div class="sb-uname" id="sbName"></div><div class="sb-role" id="sbRole"></div></div></div>
         <div class="sb-nav" id="sidebarNav"></div>
@@ -1288,26 +1332,38 @@ function buildSidebar() {
   document.getElementById('sidebarNav').innerHTML = html;
 }
 
-function navigate(page) {
+function toggleSidebar() {
+  var sb = document.getElementById('sidebar');
+  var ov = document.getElementById('sidebarOverlay');
+  sb.classList.toggle('open');
+  ov.classList.toggle('active');
+}
+
+async function navigate(page) {
   currentPage = page;
   document.querySelectorAll('.nav-item').forEach(function(el){ el.classList.remove('active'); });
   var active = document.getElementById('nav_' + page);
   if (active) active.classList.add('active');
+  // Close mobile sidebar after navigation
+  var sidebar = document.getElementById('sidebar');
+  if (sidebar) sidebar.classList.remove('open');
+  var overlay = document.getElementById('sidebarOverlay');
+  if (overlay) overlay.classList.remove('active');
   var main = document.getElementById('mainContent');
-  if (page === 'dashboard')     { renderDashboard(main); }
-  else if (page === 'employees'){ renderEmployees(main); }
+  if (page === 'dashboard')       { renderDashboard(main); }
+  else if (page === 'employees')  { await renderEmployees(main); }
   else if (page === 'compensation'){ renderCompensation(main); }
-  else if (page === 'equipment'){ renderEquipment(main); }
-  else if (page === 'stock')    { renderStock(main); }
+  else if (page === 'equipment')  { renderEquipment(main); }
+  else if (page === 'stock')      { renderStock(main); }
   else if (page === 'performance'){ renderPerformance(main); }
-  else if (page === 'churn')    { renderChurn(main); }
-  else if (page === 'vacations'){ renderVacations(main); }
-  else if (page === 'team')     { renderTeam(main); }
-  else if (page === 'my-profile'){ renderMyProfile(main); }
+  else if (page === 'churn')      { renderChurn(main); }
+  else if (page === 'vacations')  { renderVacations(main); }
+  else if (page === 'team')       { await renderTeam(main); }
+  else if (page === 'my-profile') { await renderMyProfile(main); }
   else if (page === 'my-vacations'){ renderMyVacations(main); }
-  else if (page === 'holidays'){ renderHolidays(main); }
-  else if (page === 'raises'){ renderRaises(main); }
-  else if (page === 'orgchart'){ renderOrgChart(main); }
+  else if (page === 'holidays')   { renderHolidays(main); }
+  else if (page === 'raises')     { renderRaises(main); }
+  else if (page === 'orgchart')   { renderOrgChart(main); }
   else if (page === 'anniversaries'){ renderAnniversaries(main); }
 }
 

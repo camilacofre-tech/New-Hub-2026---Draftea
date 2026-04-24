@@ -1202,35 +1202,44 @@ function renderDashboard(el) {
 // RENDER: EMPLOYEES
 // ============================================================
 async function renderEmployees(el) {
-  el.innerHTML = '<div class="page-header"><h1 class="page-title">Empleados</h1></div><div class="page-body"><div class="card" style="text-align:center;padding:40px;color:var(--tx2)">\u23f3 Cargando directorio...</div></div>';
+  // Show local data immediately as fallback
+  el.innerHTML = '<div class="page-header"><h1 class="page-title">Empleados</h1><p class="page-sub">Directorio — ' + EMPLOYEES.length + ' personas</p></div><div class="page-body">' + empTable(EMPLOYEES, true) + '</div>';
+  // Try to enrich with Sheet data
   try {
     var res = await callEdge('get_sheet_data', { role: currentUser.role, email: currentUser.email, employee_name: currentUser.name });
     var sheetEmps = res.employees || [];
-    var merged = sheetEmps.map(function(s) {
-      var match = EMPLOYEES.find(function(e){ return e.email && e.email.toLowerCase() === (s['Mail Corporativo']||'').toLowerCase(); });
-      return { id: match ? match.id : s['Mail Corporativo'], name: s['Employee']||'\u2014', email: s['Mail Corporativo']||'\u2014', country: s['Country']||'\u2014', city: s['City']||'\u2014', area: s['Area']||'\u2014', subunit: s['SubUnit']||'\u2014', puesto: s['Puesto Laboral']||'\u2014', manager: s['Direct Report']||'\u2014', salary: s['Salario']||'\u2014', moneda: s['Moneda']||'USD', salary_usd: s['Salario USD']||'\u2014', empresa: s['Empresa']||'Draftea', start: s['Fecha de contrato']||'\u2014', company: s['Empresa']||'Draftea', role: s['Puesto Laboral']||'\u2014', perf: match ? match.perf : null, vacDays: match ? match.vacDays : 15, vacUsed: match ? match.vacUsed : 0, equipment: match ? match.equipment : [], salaryHistory: match ? match.salaryHistory : [] };
-    });
-    el.innerHTML = '<div class="page-header"><h1 class="page-title">Empleados</h1><p class="page-sub">Directorio \u2014 '+merged.length+' personas</p></div><div class="page-body">'+empTable(merged, true)+'</div>';
-    if (merged.length) SHEET_EMPLOYEES = merged;
+    if (sheetEmps.length > 0) {
+      var merged = sheetEmps.map(function(s) {
+        var match = EMPLOYEES.find(function(e){ return e.email && e.email.toLowerCase() === (s['Mail Corporativo']||'').toLowerCase(); });
+        return { id: match ? match.id : s['Mail Corporativo'], name: s['Employee']||'—', email: s['Mail Corporativo']||'—', country: s['Country']||'—', city: s['City']||'—', area: s['Area']||'—', subunit: s['SubUnit']||'—', puesto: s['Puesto Laboral']||'—', manager: s['Direct Report']||'—', salary: s['Salario']||'—', moneda: s['Moneda']||'USD', salary_usd: s['Salario USD']||'—', empresa: s['Empresa']||'Draftea', start: s['Fecha de contrato']||'—', company: s['Empresa']||'Draftea', role: s['Puesto Laboral']||'—', perf: match ? match.perf : null, vacDays: match ? match.vacDays : 15, vacUsed: match ? match.vacUsed : 0, equipment: match ? match.equipment : [], salaryHistory: match ? match.salaryHistory : [] };
+      });
+      el.innerHTML = '<div class="page-header"><h1 class="page-title">Empleados</h1><p class="page-sub">Directorio — ' + merged.length + ' personas</p></div><div class="page-body">' + empTable(merged, true) + '</div>';
+      if (merged.length) SHEET_EMPLOYEES = merged;
+    }
   } catch(err) {
-    el.innerHTML = '<div class="page-header"><h1 class="page-title">Empleados</h1></div><div class="page-body">'+empTable(EMPLOYEES, true)+'</div>';
+    // Already showing fallback data, nothing to do
+    console.log('Edge Function unavailable, showing local data');
   }
 }
 
 async function renderTeam(el) {
-  el.innerHTML = '<div class="page-header"><h1 class="page-title">Mi Equipo</h1></div><div class="page-body"><div class="card" style="text-align:center;padding:40px;color:var(--tx2)">\u23f3 Cargando equipo...</div></div>';
+  // Show local team data immediately
+  var localTeam = EMPLOYEES.filter(function(e){ return e.manager === currentUser.name; });
+  el.innerHTML = '<div class="page-header"><h1 class="page-title">Mi Equipo</h1><p class="page-sub">' + localTeam.length + ' reporte(s) directo(s)</p></div><div class="page-body">' + empTable(localTeam, false) + '</div>';
+  // Try to enrich with Sheet data
   try {
     var res = await callEdge('get_sheet_data', { role: currentUser.role, email: currentUser.email, employee_name: currentUser.name });
     var sheetEmps = res.employees || [];
     var myTeam = sheetEmps.filter(function(s){ return (s['Direct Report']||'').toLowerCase() === (currentUser.name||'').toLowerCase() && (s['Mail Corporativo']||'').toLowerCase() !== (currentUser.email||'').toLowerCase(); }).map(function(s) {
       var match = EMPLOYEES.find(function(e){ return e.email && e.email.toLowerCase() === (s['Mail Corporativo']||'').toLowerCase(); });
-      return { id: match ? match.id : s['Mail Corporativo'], name: s['Employee']||'\u2014', email: s['Mail Corporativo']||'\u2014', country: s['Country']||'\u2014', city: s['City']||'\u2014', area: s['Area']||'\u2014', subunit: s['SubUnit']||'\u2014', puesto: s['Puesto Laboral']||'\u2014', manager: s['Direct Report']||'\u2014', salary: s['Salario']||'\u2014', moneda: s['Moneda']||'USD', salary_usd: s['Salario USD']||'\u2014', empresa: s['Empresa']||'Draftea', start: s['Fecha de contrato']||'\u2014', company: s['Empresa']||'Draftea', role: s['Puesto Laboral']||'\u2014', perf: match ? match.perf : null, vacDays: match ? match.vacDays : 15, vacUsed: match ? match.vacUsed : 0, equipment: match ? match.equipment : [], salaryHistory: match ? match.salaryHistory : [] };
+      return { id: match ? match.id : s['Mail Corporativo'], name: s['Employee']||'—', email: s['Mail Corporativo']||'—', country: s['Country']||'—', city: s['City']||'—', area: s['Area']||'—', subunit: s['SubUnit']||'—', puesto: s['Puesto Laboral']||'—', manager: s['Direct Report']||'—', salary: s['Salario']||'—', moneda: s['Moneda']||'USD', salary_usd: s['Salario USD']||'—', empresa: s['Empresa']||'Draftea', start: s['Fecha de contrato']||'—', company: s['Empresa']||'Draftea', role: s['Puesto Laboral']||'—', perf: match ? match.perf : null, vacDays: match ? match.vacDays : 15, vacUsed: match ? match.vacUsed : 0, equipment: match ? match.equipment : [], salaryHistory: match ? match.salaryHistory : [] };
     });
-    el.innerHTML = '<div class="page-header"><h1 class="page-title">Mi Equipo</h1><p class="page-sub">'+myTeam.length+' reporte(s) directo(s)</p></div><div class="page-body">'+empTable(myTeam, false)+'</div>';
-    if (myTeam.length) SHEET_EMPLOYEES = (SHEET_EMPLOYEES||[]).concat(myTeam);
+    if (myTeam.length > 0) {
+      el.innerHTML = '<div class="page-header"><h1 class="page-title">Mi Equipo</h1><p class="page-sub">' + myTeam.length + ' reporte(s) directo(s)</p></div><div class="page-body">' + empTable(myTeam, false) + '</div>';
+      SHEET_EMPLOYEES = (SHEET_EMPLOYEES||[]).concat(myTeam);
+    }
   } catch(err) {
-    var fallback = EMPLOYEES.filter(function(e){ return e.manager === currentUser.name; });
-    el.innerHTML = '<div class="page-header"><h1 class="page-title">Mi Equipo</h1><p class="page-sub">'+fallback.length+' reporte(s)</p></div><div class="page-body">'+empTable(fallback, false)+'</div>';
+    console.log('Edge Function unavailable, showing local team data');
   }
 }
 
